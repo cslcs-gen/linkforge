@@ -109,7 +109,8 @@ h1 {
 
 /* ── Panels ── */
 .panel { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
-.panel.hidden { display: none; }
+.panel.hidden { display: none !important; }
+.panel[hidden] { display: none !important; }
 
 /* ── Stat cards ── */
 .stat-row {
@@ -119,7 +120,7 @@ h1 {
 }
 
 .stats-grid {
-  display: grid;
+  display: grid !important;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
 }
@@ -227,7 +228,6 @@ h1 {
 .version   { color: var(--accent); font-size: 0.68rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
 
 /* ── Stats panel ── */
-.stats-grid { grid-template-columns: 1fr 1fr 1fr; }
 
 /* ── Leaderboard panel ── */
 .board-header { text-align: center; }
