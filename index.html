@@ -3,7 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LinkForge</title>
+<title>LinkForge — Daily Links Puzzle</title>
+<meta name="description" content="Find the hidden links. Group four connected words before you run out of mistakes. A daily puzzle by buildjoynow.com.">
+<meta name="theme-color" content="#157f72">
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzE1N2Y3MiIvPgogIDxyZWN0IHg9IjMiIHk9IjExIiB3aWR0aD0iMTMiIGhlaWdodD0iMTAiIHJ4PSI1IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIuNSIgZmlsbD0ibm9uZSIvPgogIDxyZWN0IHg9IjE2IiB5PSIxMSIgd2lkdGg9IjEzIiBoZWlnaHQ9IjEwIiByeD0iNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyLjUiIGZpbGw9Im5vbmUiLz4KICA8cmVjdCB4PSIxNSIgeT0iMTMiIHdpZHRoPSIyIiBoZWlnaHQ9IjYiIGZpbGw9IiMxNTdmNzIiLz4KICA8cGF0aCBkPSJNMjUuNSA0IEwyNi44IDcgTDMwIDguNSBMMjYuOCAxMCBMMjUuNSAxMyBMMjQuMiAxMCBMMjEgOC41IEwyNC4yIDcgWiIgZmlsbD0iI2Y1Yzg0MiIvPgo8L3N2Zz4K">
+<link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzE1N2Y3MiIvPgogIDxyZWN0IHg9IjMiIHk9IjExIiB3aWR0aD0iMTMiIGhlaWdodD0iMTAiIHJ4PSI1IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIuNSIgZmlsbD0ibm9uZSIvPgogIDxyZWN0IHg9IjE2IiB5PSIxMSIgd2lkdGg9IjEzIiBoZWlnaHQ9IjEwIiByeD0iNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyLjUiIGZpbGw9Im5vbmUiLz4KICA8cmVjdCB4PSIxNSIgeT0iMTMiIHdpZHRoPSIyIiBoZWlnaHQ9IjYiIGZpbGw9IiMxNTdmNzIiLz4KICA8cGF0aCBkPSJNMjUuNSA0IEwyNi44IDcgTDMwIDguNSBMMjYuOCAxMCBMMjUuNSAxMyBMMjQuMiAxMCBMMjEgOC41IEwyNC4yIDcgWiIgZmlsbD0iI2Y1Yzg0MiIvPgo8L3N2Zz4K">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSI+CiAgPCEtLSBCYWNrZ3JvdW5kIC0tPgogIDxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMTU3ZjcyIi8+CgogIDwhLS0gTGVmdCBjaGFpbiBsaW5rIHJpbmcgLS0+CiAgPHJlY3QgeD0iNiIgeT0iMjIiIHdpZHRoPSIyNiIgaGVpZ2h0PSIyMCIgcng9IjEwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQuNSIgZmlsbD0ibm9uZSIvPgoKICA8IS0tIFJpZ2h0IGNoYWluIGxpbmsgcmluZyAtLT4KICA8cmVjdCB4PSIzMiIgeT0iMjIiIHdpZHRoPSIyNiIgaGVpZ2h0PSIyMCIgcng9IjEwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQuNSIgZmlsbD0ibm9uZSIvPgoKICA8IS0tIENvdmVyIGNlbnRyZSBzZWFtIHRvIGNyZWF0ZSBpbnRlcmxvY2tlZCBsb29rIC0tPgogIDxyZWN0IHg9IjMwIiB5PSIyNi41IiB3aWR0aD0iNCIgaGVpZ2h0PSIxMSIgZmlsbD0iIzE1N2Y3MiIvPgoKICA8IS0tIEZvcmdlIHNwYXJrIOKAlCA0LXBvaW50IHN0YXIgdG9wIHJpZ2h0IC0tPgogIDxwYXRoIGQ9Ik01MSA4IEw1MyAxMyBMNTggMTUgTDUzIDE3IEw1MSAyMiBMNDkgMTcgTDQ0IDE1IEw0OSAxMyBaIiBmaWxsPSIjZjVjODQyIi8+Cjwvc3ZnPgo=">
+
+<!-- Open Graph -->
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="https://linkforge.buildjoynow.com">
+<meta property="og:title"       content="LinkForge — Daily Links Puzzle">
+<meta property="og:description" content="Find the hidden links. Group four connected words before you run out of mistakes.">
+<meta property="og:image"       content="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAwIDYzMCIgZmlsbD0ibm9uZSI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnMSIgY3g9IjIwJSIgY3k9IjIwJSIgcj0iNTAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzFhOWU4ZiIgc3RvcC1vcGFjaXR5PSIwLjMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMTU3ZjcyIiBzdG9wLW9wYWNpdHk9IjAiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnMiIgY3g9IjgwJSIgY3k9IjgwJSIgcj0iNTAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2MzNGE2NSIgc3RvcC1vcGFjaXR5PSIwLjIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYzM0YTY1IiBzdG9wLW9wYWNpdHk9IjAiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgPC9kZWZzPgogIDwhLS0gQmFja2dyb3VuZCAtLT4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI2MzAiIGZpbGw9IiNmNWY3ZmIiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI2MzAiIGZpbGw9InVybCgjYmcxKSIvPgogIDxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjYzMCIgZmlsbD0idXJsKCNiZzIpIi8+CgogIDwhLS0gTG9nbyBpY29uIC0tPgogIDxyZWN0IHg9IjgwIiB5PSIyMTUiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiByeD0iNDQiIGZpbGw9IiMxNTdmNzIiLz4KICA8cmVjdCB4PSI5NiIgeT0iMjY5IiB3aWR0aD0iODAiIGhlaWdodD0iNjAiIHJ4PSIzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxNCIgZmlsbD0ibm9uZSIvPgogIDxyZWN0IHg9IjE4NCIgeT0iMjY5IiB3aWR0aD0iODAiIGhlaWdodD0iNjAiIHJ4PSIzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxNCIgZmlsbD0ibm9uZSIvPgogIDxyZWN0IHg9IjE4MCIgeT0iMjgyIiB3aWR0aD0iOCIgaGVpZ2h0PSIzNCIgZmlsbD0iIzE1N2Y3MiIvPgogIDxwYXRoIGQ9Ik0yNDQgMjI1IEwyNTEgMjQzIEwyNjkgMjUxIEwyNTEgMjU5IEwyNDQgMjc3IEwyMzcgMjU5IEwyMTkgMjUxIEwyMzcgMjQzIFoiIGZpbGw9IiNmNWM4NDIiLz4KCiAgPCEtLSBUaXRsZSAtLT4KICA8dGV4dCB4PSIzMjAiIHk9IjMzMCIgZm9udC1mYW1pbHk9IkludGVyLCBzeXN0ZW0tdWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEyIiBmb250LXdlaWdodD0iOTAwIiBsZXR0ZXItc3BhY2luZz0iLTQiIGZpbGw9IiMyMDIxMjQiPkxpbmtGb3JnZTwvdGV4dD4KCiAgPCEtLSBUYWdsaW5lIC0tPgogIDx0ZXh0IHg9IjMyMiIgeT0iMzg4IiBmb250LWZhbWlseT0iSW50ZXIsIHN5c3RlbS11aSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzNiIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzY2NzA4NSI+RmluZCB0aGUgaGlkZGVuIGxpbmtzLiBGb3JnZSB0aGUgY29ubmVjdGlvbi48L3RleHQ+CgogIDwhLS0gQm90dG9tIHN0cmlwIC0tPgogIDxyZWN0IHg9IjAiIHk9IjU3MCIgd2lkdGg9IjEyMDAiIGhlaWdodD0iNjAiIGZpbGw9IiMxNTdmNzIiIG9wYWNpdHk9IjAuMDgiLz4KICA8dGV4dCB4PSI4MCIgeT0iNjAzIiBmb250LWZhbWlseT0iSW50ZXIsIHN5c3RlbS11aSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzE1N2Y3MiIgbGV0dGVyLXNwYWNpbmc9IjIiIG9wYWNpdHk9IjAuOCI+QlVJTERKT1lOT1cuQ09NPC90ZXh0PgogIDx0ZXh0IHg9IjExMjAiIHk9IjYwMyIgZm9udC1mYW1pbHk9IkludGVyLCBzeXN0ZW0tdWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM2NjcwODUiIHRleHQtYW5jaG9yPSJlbmQiPkRhaWx5IHB1enpsZTwvdGV4dD4KPC9zdmc+">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name"   content="buildjoynow.com">
+
+<!-- Twitter Card -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="LinkForge — Daily Links Puzzle">
+<meta name="twitter:description" content="Find the hidden links. Group four connected words before you run out of mistakes.">
+<meta name="twitter:image"       content="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAwIDYzMCIgZmlsbD0ibm9uZSI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnMSIgY3g9IjIwJSIgY3k9IjIwJSIgcj0iNTAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzFhOWU4ZiIgc3RvcC1vcGFjaXR5PSIwLjMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMTU3ZjcyIiBzdG9wLW9wYWNpdHk9IjAiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnMiIgY3g9IjgwJSIgY3k9IjgwJSIgcj0iNTAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2MzNGE2NSIgc3RvcC1vcGFjaXR5PSIwLjIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYzM0YTY1IiBzdG9wLW9wYWNpdHk9IjAiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgPC9kZWZzPgogIDwhLS0gQmFja2dyb3VuZCAtLT4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI2MzAiIGZpbGw9IiNmNWY3ZmIiLz4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI2MzAiIGZpbGw9InVybCgjYmcxKSIvPgogIDxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjYzMCIgZmlsbD0idXJsKCNiZzIpIi8+CgogIDwhLS0gTG9nbyBpY29uIC0tPgogIDxyZWN0IHg9IjgwIiB5PSIyMTUiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiByeD0iNDQiIGZpbGw9IiMxNTdmNzIiLz4KICA8cmVjdCB4PSI5NiIgeT0iMjY5IiB3aWR0aD0iODAiIGhlaWdodD0iNjAiIHJ4PSIzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxNCIgZmlsbD0ibm9uZSIvPgogIDxyZWN0IHg9IjE4NCIgeT0iMjY5IiB3aWR0aD0iODAiIGhlaWdodD0iNjAiIHJ4PSIzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxNCIgZmlsbD0ibm9uZSIvPgogIDxyZWN0IHg9IjE4MCIgeT0iMjgyIiB3aWR0aD0iOCIgaGVpZ2h0PSIzNCIgZmlsbD0iIzE1N2Y3MiIvPgogIDxwYXRoIGQ9Ik0yNDQgMjI1IEwyNTEgMjQzIEwyNjkgMjUxIEwyNTEgMjU5IEwyNDQgMjc3IEwyMzcgMjU5IEwyMTkgMjUxIEwyMzcgMjQzIFoiIGZpbGw9IiNmNWM4NDIiLz4KCiAgPCEtLSBUaXRsZSAtLT4KICA8dGV4dCB4PSIzMjAiIHk9IjMzMCIgZm9udC1mYW1pbHk9IkludGVyLCBzeXN0ZW0tdWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEyIiBmb250LXdlaWdodD0iOTAwIiBsZXR0ZXItc3BhY2luZz0iLTQiIGZpbGw9IiMyMDIxMjQiPkxpbmtGb3JnZTwvdGV4dD4KCiAgPCEtLSBUYWdsaW5lIC0tPgogIDx0ZXh0IHg9IjMyMiIgeT0iMzg4IiBmb250LWZhbWlseT0iSW50ZXIsIHN5c3RlbS11aSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzNiIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzY2NzA4NSI+RmluZCB0aGUgaGlkZGVuIGxpbmtzLiBGb3JnZSB0aGUgY29ubmVjdGlvbi48L3RleHQ+CgogIDwhLS0gQm90dG9tIHN0cmlwIC0tPgogIDxyZWN0IHg9IjAiIHk9IjU3MCIgd2lkdGg9IjEyMDAiIGhlaWdodD0iNjAiIGZpbGw9IiMxNTdmNzIiIG9wYWNpdHk9IjAuMDgiLz4KICA8dGV4dCB4PSI4MCIgeT0iNjAzIiBmb250LWZhbWlseT0iSW50ZXIsIHN5c3RlbS11aSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzE1N2Y3MiIgbGV0dGVyLXNwYWNpbmc9IjIiIG9wYWNpdHk9IjAuOCI+QlVJTERKT1lOT1cuQ09NPC90ZXh0PgogIDx0ZXh0IHg9IjExMjAiIHk9IjYwMyIgZm9udC1mYW1pbHk9IkludGVyLCBzeXN0ZW0tdWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM2NjcwODUiIHRleHQtYW5jaG9yPSJlbmQiPkRhaWx5IHB1enpsZTwvdGV4dD4KPC9zdmc+">
+
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,16 +37,22 @@
     <!-- Header -->
     <div class="header">
       <div class="header-top">
-        <div>
-          <p class="eyebrow">Daily links puzzle</p>
-          <h1 id="game-title">LinkForge</h1>
+        <div class="brand">
+          <img class="brand-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSI+CiAgPCEtLSBCYWNrZ3JvdW5kIC0tPgogIDxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMTU3ZjcyIi8+CgogIDwhLS0gTGVmdCBjaGFpbiBsaW5rIHJpbmcgLS0+CiAgPHJlY3QgeD0iNiIgeT0iMjIiIHdpZHRoPSIyNiIgaGVpZ2h0PSIyMCIgcng9IjEwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQuNSIgZmlsbD0ibm9uZSIvPgoKICA8IS0tIFJpZ2h0IGNoYWluIGxpbmsgcmluZyAtLT4KICA8cmVjdCB4PSIzMiIgeT0iMjIiIHdpZHRoPSIyNiIgaGVpZ2h0PSIyMCIgcng9IjEwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQuNSIgZmlsbD0ibm9uZSIvPgoKICA8IS0tIENvdmVyIGNlbnRyZSBzZWFtIHRvIGNyZWF0ZSBpbnRlcmxvY2tlZCBsb29rIC0tPgogIDxyZWN0IHg9IjMwIiB5PSIyNi41IiB3aWR0aD0iNCIgaGVpZ2h0PSIxMSIgZmlsbD0iIzE1N2Y3MiIvPgoKICA8IS0tIEZvcmdlIHNwYXJrIOKAlCA0LXBvaW50IHN0YXIgdG9wIHJpZ2h0IC0tPgogIDxwYXRoIGQ9Ik01MSA4IEw1MyAxMyBMNTggMTUgTDUzIDE3IEw1MSAyMiBMNDkgMTcgTDQ0IDE1IEw0OSAxMyBaIiBmaWxsPSIjZjVjODQyIi8+Cjwvc3ZnPgo=" alt="LinkForge logo" width="44" height="44">
+          <div>
+            <p class="eyebrow">Daily links puzzle</p>
+            <h1 id="game-title">LinkForge</h1>
+          </div>
         </div>
-        <button class="icon-button" id="resetButton" type="button" aria-label="Reset puzzle" title="Reset puzzle">&#8635;</button>
+        <div class="header-actions">
+          <button class="icon-button" id="shareButton" type="button" aria-label="Share LinkForge" title="Share">&#128279;</button>
+          <button class="icon-button" id="resetButton" type="button" aria-label="Reset puzzle" title="Reset puzzle">&#8635;</button>
+        </div>
       </div>
 
       <!-- Tabs -->
       <div class="tabs" role="tablist">
-        <button class="tab active" id="tabGame" role="tab" aria-selected="true"  aria-controls="panelGame">&#127381; Play</button>
+        <button class="tab active" id="tabGame"  role="tab" aria-selected="true"  aria-controls="panelGame">&#127381; Play</button>
         <button class="tab"        id="tabStats" role="tab" aria-selected="false" aria-controls="panelStats">&#128200; My Stats</button>
         <button class="tab"        id="tabBoard" role="tab" aria-selected="false" aria-controls="panelBoard">&#127942; Top 10</button>
       </div>
@@ -61,7 +91,7 @@
           src="https://hits.sh/linkforge.buildjoynow.com.svg?label=Visitors&color=157f72&labelColor=f9fafb"
           alt="Visitors count">
         <span class="copyright">Copyright 2026 buildjoynow.com. All rights reserved.</span>
-        <span class="version">v1.03</span>
+        <span class="version">v1.06</span>
       </div>
     </div>
 
@@ -116,6 +146,9 @@
 
   </div>
 </main>
+
+<!-- Share toast -->
+<div class="toast" id="shareToast" hidden>&#128279; Link copied!</div>
 
 <!-- Completion modal -->
 <div class="modal-overlay" id="nextModal" hidden>
