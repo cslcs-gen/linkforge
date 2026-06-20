@@ -28,6 +28,8 @@ const boardList        = document.querySelector("#boardList");
 const boardSubmitArea  = document.querySelector("#boardSubmitArea");
 const nicknameInput    = document.querySelector("#nicknameInput");
 const submitScoreBtn   = document.querySelector("#submitScoreBtn");
+const shareButton  = document.querySelector("#shareButton");
+const shareToast   = document.querySelector("#shareToast");
 const tabs   = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".panel");
 
@@ -503,7 +505,39 @@ function switchTab(targetId) {
   if (targetId === "Board") fetchBoard();
 }
 
+
+// ── Share ────────────────────────────────────────────────────────────────────
+function shareGame() {
+  const url  = "https://linkforge.buildjoynow.com";
+  const text = "Can you forge all 4 links? Play LinkForge — a daily word puzzle!";
+
+  if (navigator.share) {
+    navigator.share({ title: "LinkForge", text, url }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(url).then(() => showToast()).catch(() => {
+      // Fallback: select a temp input
+      const el = document.createElement("input");
+      el.value = url;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      showToast();
+    });
+  }
+}
+
+function showToast() {
+  shareToast.hidden = false;
+  shareToast.classList.add("visible");
+  setTimeout(() => {
+    shareToast.classList.remove("visible");
+    setTimeout(() => { shareToast.hidden = true; }, 220);
+  }, 2200);
+}
+
 // ── Event listeners ──────────────────────────────────────────────────────────
+shareButton.addEventListener("click", shareGame);
 resetButton.addEventListener("click", resetPuzzle);
 shuffleButton.addEventListener("click", shuffleActiveTiles);
 clearButton.addEventListener("click", clearSelection);
