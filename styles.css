@@ -255,8 +255,10 @@ h1 {
 
 .visitor-panel {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 6px;
   margin-top: 14px;
   padding: 10px 12px;
   border: 1px solid rgba(32, 33, 36, 0.09);
@@ -264,29 +266,18 @@ h1 {
   background: rgba(21, 127, 114, 0.08);
 }
 
-.visitor-label,
-.visitor-note {
-  min-width: 0;
+.visitor-badge {
+  display: block;
+  height: 20px;
+  max-width: 100%;
+}
+
+.visitor-copyright {
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 750;
-}
-
-.visitor-note {
-  grid-column: 1 / -1;
-  font-weight: 600;
-}
-
-.visitor-panel strong {
-  display: inline-block;
-  margin-left: 2px;
-  color: var(--accent-strong);
-  font-size: 0.9rem;
-  line-height: 1;
-}
-
-.visitor-panel[data-state="error"] strong {
-  color: var(--muted);
+  line-height: 1.2;
+  text-align: center;
 }
 
 .app-footer {
