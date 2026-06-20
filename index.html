@@ -8,53 +8,72 @@
 </head>
 <body>
 <main class="app" aria-labelledby="game-title">
-  <div class="app-stack">
-    <section class="game-shell">
-      <div class="topbar">
+  <div class="shell">
+
+    <div class="header">
+      <div class="header-top">
         <div>
           <p class="eyebrow">Daily links puzzle</p>
           <h1 id="game-title">LinkForge</h1>
         </div>
         <button class="icon-button" id="resetButton" type="button" aria-label="Reset puzzle" title="Reset puzzle">
-          <span aria-hidden="true">&#8635;</span>
+          &#8635;
         </button>
       </div>
+    </div>
 
-      <div class="summary">
-        <div>
-          <span class="summary-label">Groups found</span>
+    <div class="body">
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <span class="stat-label">Groups found</span>
           <strong id="groupsFound">0/4</strong>
         </div>
-        <div>
-          <span class="summary-label">Mistakes left</span>
+        <div class="stat-card">
+          <span class="stat-label">Mistakes left</span>
           <strong id="mistakesLeft">4</strong>
         </div>
       </div>
 
       <p class="status" id="status" aria-live="polite">Select four connected tiles.</p>
-      <p class="hint" id="hintText" aria-live="polite"></p>
+      <div class="hint-box" id="hintBox" aria-live="polite" hidden>
+        <span class="hint-icon">&#128161;</span>
+        <span id="hintText"></span>
+      </div>
 
       <div class="solved-groups" id="solvedGroups" aria-label="Solved groups"></div>
       <div class="tile-grid" id="tileGrid" aria-label="Puzzle tiles"></div>
 
       <div class="actions">
-        <button class="secondary" id="shuffleButton" type="button">Shuffle</button>
-        <button class="secondary" id="clearButton" type="button">Clear</button>
-        <button class="primary" id="submitButton" type="button">Submit</button>
+        <button class="btn-secondary" id="shuffleButton" type="button">Shuffle</button>
+        <button class="btn-secondary" id="clearButton" type="button">Clear</button>
+        <button class="btn-primary" id="submitButton" type="button">Submit</button>
       </div>
 
-      <div class="visitor-panel" aria-label="Visitor count">
+      <div class="footer-panel">
         <img
           class="visitor-badge"
           src="https://hits.sh/linkforge.buildjoynow.com.svg?label=Visitors&color=157f72&labelColor=f9fafb"
           alt="Visitors count"
         >
-        <span class="visitor-copyright">Copyright 2026 buildjoynow.com. All rights reserved.</span>
-        <span class="visitor-version">v1.01</span>
+        <span class="copyright">Copyright 2026 buildjoynow.com. All rights reserved.</span>
+        <span class="version">v1.02</span>
       </div>
-    </section>
+
+    </div>
   </div>
 </main>
+
+<!-- Next puzzle modal -->
+<div class="modal-overlay" id="nextModal" hidden>
+  <div class="modal-card">
+    <div class="modal-icon">&#127381;</div>
+    <h2>Puzzle complete!</h2>
+    <p id="modalSub">All 4 links forged. Ready for the next one?</p>
+    <button class="btn-primary modal-btn" id="nextPuzzleBtn" type="button">Next Puzzle &rarr;</button>
+  </div>
+</div>
+
 <script src="script.js"></script>
 </body>
 </html>
