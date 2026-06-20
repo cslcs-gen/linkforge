@@ -1,3 +1,4 @@
+// ── DOM refs ─────────────────────────────────────────────────────────────────
 const tileGrid      = document.querySelector("#tileGrid");
 const solvedGroups  = document.querySelector("#solvedGroups");
 const statusText    = document.querySelector("#status");
@@ -11,8 +12,38 @@ const clearButton   = document.querySelector("#clearButton");
 const submitButton  = document.querySelector("#submitButton");
 const nextModal     = document.querySelector("#nextModal");
 const nextPuzzleBtn = document.querySelector("#nextPuzzleBtn");
+const modalBoardBtn = document.querySelector("#modalBoardBtn");
 const modalSub      = document.querySelector("#modalSub");
+const modalStats    = document.querySelector("#modalStats");
+const modalIcon     = document.querySelector("#modalIcon");
+const modalTitle    = document.querySelector("#modalTitle");
 
+// Stats panel
+const statCleared   = document.querySelector("#statCleared");
+const statStreak    = document.querySelector("#statStreak");
+const statBest      = document.querySelector("#statBest");
+const statPlayed    = document.querySelector("#statPlayed");
+const statPerfect   = document.querySelector("#statPerfect");
+const statAvg       = document.querySelector("#statAvg");
+const resetStatsBtn = document.querySelector("#resetStatsBtn");
+
+// Board panel
+const boardList        = document.querySelector("#boardList");
+const boardSubmitArea  = document.querySelector("#boardSubmitArea");
+const nicknameInput    = document.querySelector("#nicknameInput");
+const submitScoreBtn   = document.querySelector("#submitScoreBtn");
+
+// Tabs
+const tabs   = document.querySelectorAll(".tab");
+const panels = document.querySelectorAll(".panel");
+
+// ── Config ───────────────────────────────────────────────────────────────────
+// Replace this URL with your deployed Cloudflare Worker URL
+const WORKER_URL = "https://linkforge-scores.cslcs-gen.workers.dev";
+const LS_KEY     = "linkforge:stats";
+const LS_NICK    = "linkforge:nickname";
+
+// ── Category pool ────────────────────────────────────────────────────────────
 const categoryPool = [
   { title: "Things forged",   words: ["BLADE", "CHAIN", "KEY", "COIN"],           hint: "Objects made by heat or pressure." },
   { title: "Web terms",       words: ["LINK", "NODE", "DOMAIN", "CACHE"],          hint: "These belong to the web or networks." },
@@ -46,6 +77,7 @@ const categoryPool = [
 
 const puzzleBank = buildPuzzleBank(100);
 
+// ── Game state ───────────────────────────────────────────────────────────────
 let puzzleGroups       = [];
 let tiles              = [];
 let selected           = new Set();
@@ -53,8 +85,123 @@ let solved             = new Set();
 let mistakes           = 0;
 let currentPuzzleIndex = -1;
 
-// ── Puzzle bank ──────────────────────────────────────────────────────────────
+// ── Local stats ──────────────────────────────────────────────────────────────
+function loadStats() {
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY)) || defaultStats();
+  } catch { return defaultStats(); }
+}
 
+function defaultStats() {
+  return { cleared: 0, streak: 0, best: 0, played: 0, perfect: 0, totalMistakes: 0 };
+}
+
+function saveStats(s) {
+  localStorage.setItem(LS_KEY, JSON.stringify(s));
+}
+
+function renderStats() {
+  const s = loadStats();
+  statCleared.textContent = s.cleared;
+  statStreak.textContent  = s.streak;
+  statBest.textContent    = s.best;
+  statPlayed.textContent  = s.played;
+  statPerfect.textContent = s.perfect;
+  statAvg.textContent     = s.played > 0 ? (s.totalMistakes / s.played).toFixed(1) : "—";
+}
+
+function recordResult(cleared) {
+  const s = loadStats();
+  s.played++;
+  s.totalMistakes += mistakes;
+  if (cleared) {
+    s.cleared++;
+    s.streak++;
+    if (s.streak > s.best) s.best = s.streak;
+    if (mistakes === 0) s.perfect++;
+  } else {
+    s.streak = 0;
+  }
+  saveStats(s);
+}
+
+// ── Leaderboard ──────────────────────────────────────────────────────────────
+let boardData        = [];
+let pendingScore     = null;
+let myNickname       = localStorage.getItem(LS_NICK) || "";
+
+async function fetchBoard() {
+  boardList.innerHTML = "<div class='board-loading'>Loading leaderboard&#8230;</div>";
+  try {
+    const res = await fetch(WORKER_URL + "/scores");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    boardData = await res.json();
+    renderBoard();
+  } catch {
+    boardList.innerHTML = "<div class='board-error'>Could not load leaderboard. Check back soon.</div>";
+  }
+}
+
+function renderBoard() {
+  const medals = ["🥇", "🥈", "🥉"];
+  boardList.innerHTML = "";
+
+  if (!boardData.length) {
+    boardList.innerHTML = "<div class='board-empty'>No scores yet — be the first!</div>";
+    return;
+  }
+
+  boardData.forEach((entry, i) => {
+    const isMe = myNickname && entry.nickname === myNickname;
+    const row  = document.createElement("div");
+    row.className = "board-row rank-" + (i + 1) + (isMe ? " me" : "");
+
+    const rankEl = document.createElement("div");
+    rankEl.className = "board-rank";
+    rankEl.textContent = medals[i] || (i + 1);
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "board-name";
+    nameEl.textContent = entry.nickname;
+
+    const scoreEl = document.createElement("div");
+    scoreEl.className = "board-score";
+    scoreEl.innerHTML = entry.cleared + " rounds<span>" + entry.perfect + " perfect</span>";
+
+    row.append(rankEl, nameEl, scoreEl);
+    boardList.append(row);
+  });
+}
+
+async function submitScore(nickname, cleared, perfect) {
+  submitScoreBtn.disabled = true;
+  submitScoreBtn.textContent = "Submitting…";
+  try {
+    const res = await fetch(WORKER_URL + "/scores", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nickname, cleared, perfect }),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    boardData = await res.json();
+    myNickname = nickname;
+    localStorage.setItem(LS_NICK, nickname);
+    boardSubmitArea.hidden = true;
+    renderBoard();
+    pendingScore = null;
+  } catch {
+    submitScoreBtn.textContent = "Retry";
+    submitScoreBtn.disabled = false;
+  }
+}
+
+function showSubmitArea(cleared, perfect) {
+  pendingScore = { cleared, perfect };
+  nicknameInput.value = myNickname;
+  boardSubmitArea.hidden = false;
+}
+
+// ── Puzzle bank ──────────────────────────────────────────────────────────────
 function buildPuzzleBank(count) {
   const bank = [];
   for (let i = 0; i < count; i++) {
@@ -76,9 +223,8 @@ function seededShuffle(items, seed) {
 }
 
 // ── Tiles ────────────────────────────────────────────────────────────────────
-
 function createTiles() {
-  tiles = puzzleGroups.flatMap((group, gi) => group.words.map(word => ({ word, gi })));
+  tiles = puzzleGroups.flatMap((g, gi) => g.words.map(word => ({ word, gi })));
   randomShuffle(tiles);
 }
 
@@ -90,9 +236,7 @@ function randomShuffle(arr) {
 }
 
 // ── Render ───────────────────────────────────────────────────────────────────
-
 function render() {
-  // Solved group cards
   solvedGroups.innerHTML = "";
   puzzleGroups.forEach((group, i) => {
     if (!solved.has(i)) return;
@@ -102,7 +246,6 @@ function render() {
     solvedGroups.append(card);
   });
 
-  // Tiles
   tileGrid.innerHTML = "";
   tiles.forEach((tile, i) => {
     const btn = document.createElement("button");
@@ -121,14 +264,10 @@ function render() {
 }
 
 // ── Game logic ───────────────────────────────────────────────────────────────
-
 function toggleTile(i) {
   if (solved.has(tiles[i].gi)) return;
-  if (selected.has(i)) {
-    selected.delete(i);
-  } else if (selected.size < 4) {
-    selected.add(i);
-  }
+  if (selected.has(i)) { selected.delete(i); }
+  else if (selected.size < 4) { selected.add(i); }
   statusText.textContent = selected.size === 4 ? "Submit your link." : "Select four connected tiles.";
   render();
 }
@@ -136,8 +275,8 @@ function toggleTile(i) {
 function submitSelection() {
   if (selected.size !== 4) return;
 
-  const picked = Array.from(selected).map(i => tiles[i]);
-  const gi     = picked[0].gi;
+  const picked  = Array.from(selected).map(i => tiles[i]);
+  const gi      = picked[0].gi;
   const isMatch = picked.every(t => t.gi === gi);
 
   if (isMatch) {
@@ -148,13 +287,14 @@ function submitSelection() {
     if (solved.size === 4) {
       statusText.textContent = "All links forged!";
       render();
-      showModal();
+      recordResult(true);
+      renderStats();
+      showCompletionModal();
     } else {
       statusText.textContent = "Correct link forged.";
       render();
     }
   } else {
-    // Capture hint BEFORE clearing, increment mistakes AFTER
     const hintMsg = buildHint(picked);
     mistakes++;
     selected.clear();
@@ -164,28 +304,31 @@ function submitSelection() {
       : "Not a link. Try another group.";
 
     showHint(true, hintMsg);
-    render();
+
+    if (mistakes >= 4) {
+      render();
+      recordResult(false);
+      renderStats();
+      showFailModal();
+    } else {
+      render();
+    }
   }
 }
 
 function buildHint(picked) {
-  // Count tiles per group
   const counts = new Map();
   picked.forEach(t => counts.set(t.gi, (counts.get(t.gi) || 0) + 1));
   const [topGi, topCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-
-  const nextMistakes = mistakes + 1; // mistakes not incremented yet when called
+  const nextMistakes = mistakes + 1;
 
   if (topCount === 3) {
     return "Hint " + nextMistakes + "/4: Three tiles belong to \"" + puzzleGroups[topGi].title + "\" — one doesn't fit.";
   }
 
-  const unsolved = puzzleGroups
-    .map((g, i) => ({ g, i }))
-    .filter(({ i }) => !solved.has(i));
-
-  const hintGroup = unsolved[mistakes % unsolved.length]?.g;
-  return "Hint " + nextMistakes + "/4: " + (hintGroup ? hintGroup.hint : "Keep trying!");
+  const unsolved   = puzzleGroups.map((g, i) => ({ g, i })).filter(({ i }) => !solved.has(i));
+  const hintGroup  = unsolved[mistakes % unsolved.length]?.g;
+  return "Hint " + nextMistakes + "/4: " + (hintGroup ? hintGroup.hint : "Keep going!");
 }
 
 function showHint(visible, msg) {
@@ -237,28 +380,89 @@ function shuffleActiveTiles() {
   clearSelection();
 }
 
-// ── Modal ────────────────────────────────────────────────────────────────────
+// ── Modals ───────────────────────────────────────────────────────────────────
+function showCompletionModal() {
+  const s = loadStats();
+  modalIcon.textContent  = mistakes === 0 ? "⭐" : "🎉";
+  modalTitle.textContent = mistakes === 0 ? "Perfect clear!" : "Puzzle complete!";
+  modalSub.textContent   = "Puzzle " + (currentPuzzleIndex + 1) + " done with " + mistakes + " mistake" + (mistakes === 1 ? "" : "s") + ".";
 
-function showModal() {
-  modalSub.textContent = "All 4 links forged on puzzle " + (currentPuzzleIndex + 1) + ". Ready for the next one?";
+  modalStats.innerHTML = [
+    { label: "Cleared", value: s.cleared },
+    { label: "Streak",  value: s.streak  },
+    { label: "Best",    value: s.best    },
+  ].map(x => "<div class='modal-stat-item'><strong>" + x.value + "</strong><span>" + x.label + "</span></div>").join("");
+
   nextModal.hidden = false;
 }
 
-function hideModal() {
-  nextModal.hidden = true;
+function showFailModal() {
+  const s = loadStats();
+  modalIcon.textContent  = "💥";
+  modalTitle.textContent = "Out of mistakes!";
+  modalSub.textContent   = "Streak reset. Puzzle " + (currentPuzzleIndex + 1) + " not cleared.";
+
+  modalStats.innerHTML = [
+    { label: "Cleared", value: s.cleared },
+    { label: "Streak",  value: s.streak  },
+    { label: "Best",    value: s.best    },
+  ].map(x => "<div class='modal-stat-item'><strong>" + x.value + "</strong><span>" + x.label + "</span></div>").join("");
+
+  nextModal.hidden = false;
+}
+
+function hideModal() { nextModal.hidden = true; }
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(targetId) {
+  tabs.forEach(t => {
+    const active = t.id === "tab" + targetId;
+    t.classList.toggle("active", active);
+    t.setAttribute("aria-selected", active ? "true" : "false");
+  });
+  panels.forEach(p => {
+    p.classList.toggle("hidden", p.id !== "panel" + targetId);
+  });
+
+  if (targetId === "Stats") renderStats();
+  if (targetId === "Board") fetchBoard();
 }
 
 // ── Event listeners ──────────────────────────────────────────────────────────
-
 resetButton.addEventListener("click", resetPuzzle);
 shuffleButton.addEventListener("click", shuffleActiveTiles);
 clearButton.addEventListener("click", clearSelection);
 submitButton.addEventListener("click", submitSelection);
-nextPuzzleBtn.addEventListener("click", () => { hideModal(); resetPuzzle(); });
+resetStatsBtn.addEventListener("click", () => {
+  if (confirm("Reset all your local stats?")) {
+    saveStats(defaultStats());
+    renderStats();
+  }
+});
 
-// Tap backdrop to dismiss
+nextPuzzleBtn.addEventListener("click", () => { hideModal(); resetPuzzle(); });
 nextModal.addEventListener("click", e => { if (e.target === nextModal) { hideModal(); resetPuzzle(); } });
 
-// ── Init ─────────────────────────────────────────────────────────────────────
+modalBoardBtn.addEventListener("click", () => {
+  hideModal();
+  switchTab("Board");
+  const s = loadStats();
+  if (s.cleared > 0) showSubmitArea(s.cleared, s.perfect);
+});
 
+tabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    const id = tab.id.replace("tab", "");
+    switchTab(id);
+  });
+});
+
+submitScoreBtn.addEventListener("click", () => {
+  const nick = nicknameInput.value.trim().slice(0, 16);
+  if (!nick) { nicknameInput.focus(); return; }
+  if (!pendingScore) return;
+  submitScore(nick, pendingScore.cleared, pendingScore.perfect);
+});
+
+// ── Init ─────────────────────────────────────────────────────────────────────
 resetPuzzle();
