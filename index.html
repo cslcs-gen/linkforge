@@ -8,50 +8,50 @@
 </head>
 <body>
   <main class="app" aria-labelledby="game-title">
-    <section class="game-shell">
-      <div class="topbar">
-        <div>
-          <p class="eyebrow">Daily links puzzle</p>
-          <h1 id="game-title">LinkForge</h1>
+    <div class="app-stack">
+      <section class="game-shell">
+        <div class="topbar">
+          <div>
+            <p class="eyebrow">Daily links puzzle</p>
+            <h1 id="game-title">LinkForge</h1>
+          </div>
+          <button class="icon-button" id="resetButton" type="button" aria-label="Reset puzzle" title="Reset puzzle">
+            <span aria-hidden="true">&#8635;</span>
+          </button>
         </div>
-        <button class="icon-button" id="resetButton" type="button" aria-label="Reset puzzle" title="Reset puzzle">
-          <span aria-hidden="true">&#8635;</span>
-        </button>
-      </div>
 
-      <div class="summary">
-        <div>
-          <span class="summary-label">Groups found</span>
-          <strong id="groupsFound">0/4</strong>
+        <div class="summary">
+          <div>
+            <span class="summary-label">Groups found</span>
+            <strong id="groupsFound">0/4</strong>
+          </div>
+          <div>
+            <span class="summary-label">Mistakes left</span>
+            <strong id="mistakesLeft">4</strong>
+          </div>
         </div>
-        <div>
-          <span class="summary-label">Mistakes left</span>
-          <strong id="mistakesLeft">4</strong>
+
+        <p class="status" id="status" aria-live="polite">Select four connected tiles.</p>
+        <p class="hint" id="hintText" aria-live="polite"></p>
+
+        <div class="solved-groups" id="solvedGroups" aria-label="Solved groups"></div>
+
+        <div class="tile-grid" id="tileGrid" aria-label="Puzzle tiles"></div>
+
+        <div class="actions">
+          <button class="secondary" id="shuffleButton" type="button">Shuffle</button>
+          <button class="secondary" id="clearButton" type="button">Clear</button>
+          <button class="primary" id="submitButton" type="button">Submit</button>
         </div>
-      </div>
+      </section>
 
-      <p class="status" id="status" aria-live="polite">Select four connected tiles.</p>
-
-      <div class="solved-groups" id="solvedGroups" aria-label="Solved groups"></div>
-
-      <div class="tile-grid" id="tileGrid" aria-label="Puzzle tiles"></div>
-
-      <div class="actions">
-        <button class="secondary" id="shuffleButton" type="button">Shuffle</button>
-        <button class="secondary" id="clearButton" type="button">Clear</button>
-        <button class="primary" id="submitButton" type="button">Submit</button>
-      </div>
-
-      <div class="visitor-panel" aria-label="Visitor count">
-        <span class="visitor-label">LinkForge visits</span>
-        <strong id="visitorCount">...</strong>
-        <span class="visitor-note" id="visitorNote">Syncing public counter</span>
-      </div>
-
-      <footer class="site-footer">
-        Copyright 2026 buildjoynow.com. All rights reserved.
+      <footer class="app-footer">
+        <span class="visit-count" aria-label="Visitor count">
+          Visitors: <strong id="visitorCount">...</strong>
+        </span>
+        <span class="copyright">Copyright 2026 buildjoynow.com. All rights reserved.</span>
       </footer>
-    </section>
+    </div>
   </main>
 
   <script src="script.js"></script>
