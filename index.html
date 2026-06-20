@@ -10,20 +10,26 @@
 <main class="app" aria-labelledby="game-title">
   <div class="shell">
 
+    <!-- Header -->
     <div class="header">
       <div class="header-top">
         <div>
           <p class="eyebrow">Daily links puzzle</p>
           <h1 id="game-title">LinkForge</h1>
         </div>
-        <button class="icon-button" id="resetButton" type="button" aria-label="Reset puzzle" title="Reset puzzle">
-          &#8635;
-        </button>
+        <button class="icon-button" id="resetButton" type="button" aria-label="Reset puzzle" title="Reset puzzle">&#8635;</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs" role="tablist">
+        <button class="tab active" id="tabGame" role="tab" aria-selected="true"  aria-controls="panelGame">&#127381; Play</button>
+        <button class="tab"        id="tabStats" role="tab" aria-selected="false" aria-controls="panelStats">&#128200; My Stats</button>
+        <button class="tab"        id="tabBoard" role="tab" aria-selected="false" aria-controls="panelBoard">&#127942; Top 10</button>
       </div>
     </div>
 
-    <div class="body">
-
+    <!-- Panel: Game -->
+    <div class="panel" id="panelGame" role="tabpanel">
       <div class="stat-row">
         <div class="stat-card">
           <span class="stat-label">Groups found</span>
@@ -46,31 +52,80 @@
 
       <div class="actions">
         <button class="btn-secondary" id="shuffleButton" type="button">Shuffle</button>
-        <button class="btn-secondary" id="clearButton" type="button">Clear</button>
-        <button class="btn-primary" id="submitButton" type="button">Submit</button>
+        <button class="btn-secondary" id="clearButton"   type="button">Clear</button>
+        <button class="btn-primary"   id="submitButton"  type="button">Submit</button>
       </div>
 
       <div class="footer-panel">
-        <img
-          class="visitor-badge"
+        <img class="visitor-badge"
           src="https://hits.sh/linkforge.buildjoynow.com.svg?label=Visitors&color=157f72&labelColor=f9fafb"
-          alt="Visitors count"
-        >
+          alt="Visitors count">
         <span class="copyright">Copyright 2026 buildjoynow.com. All rights reserved.</span>
-        <span class="version">v1.02</span>
+        <span class="version">v1.03</span>
       </div>
-
     </div>
+
+    <!-- Panel: My Stats -->
+    <div class="panel hidden" id="panelStats" role="tabpanel">
+      <div class="stats-grid">
+        <div class="stat-card accent">
+          <span class="stat-label">Rounds cleared</span>
+          <strong id="statCleared">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Current streak</span>
+          <strong id="statStreak">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Best streak</span>
+          <strong id="statBest">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total played</span>
+          <strong id="statPlayed">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Perfect clears</span>
+          <strong id="statPerfect">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Avg mistakes</span>
+          <strong id="statAvg">—</strong>
+        </div>
+      </div>
+      <button class="btn-danger" id="resetStatsBtn" type="button">Reset my stats</button>
+    </div>
+
+    <!-- Panel: Top 10 -->
+    <div class="panel hidden" id="panelBoard" role="tabpanel">
+      <div class="board-header">
+        <p class="board-sub">Global top 10 — rounds cleared without failing</p>
+      </div>
+      <div id="boardList" class="board-list">
+        <div class="board-loading">Loading leaderboard&#8230;</div>
+      </div>
+      <div class="board-submit" id="boardSubmitArea" hidden>
+        <p class="board-submit-label">You have a score worth submitting!</p>
+        <div class="input-row">
+          <input type="text" id="nicknameInput" maxlength="16" placeholder="Your nickname" autocomplete="off" spellcheck="false">
+          <button class="btn-primary" id="submitScoreBtn" type="button">Submit</button>
+        </div>
+        <p class="board-submit-note">Max 16 chars &middot; shown publicly</p>
+      </div>
+    </div>
+
   </div>
 </main>
 
-<!-- Next puzzle modal -->
+<!-- Completion modal -->
 <div class="modal-overlay" id="nextModal" hidden>
   <div class="modal-card">
-    <div class="modal-icon">&#127381;</div>
-    <h2>Puzzle complete!</h2>
+    <div class="modal-icon" id="modalIcon">&#127381;</div>
+    <h2 id="modalTitle">Puzzle complete!</h2>
     <p id="modalSub">All 4 links forged. Ready for the next one?</p>
+    <div class="modal-stats" id="modalStats"></div>
     <button class="btn-primary modal-btn" id="nextPuzzleBtn" type="button">Next Puzzle &rarr;</button>
+    <button class="btn-secondary modal-btn" id="modalBoardBtn" type="button">&#127942; View Top 10</button>
   </div>
 </div>
 
