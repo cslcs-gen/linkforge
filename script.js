@@ -500,7 +500,10 @@ function switchTab(targetId) {
     t.classList.toggle("active", active);
     t.setAttribute("aria-selected", active ? "true" : "false");
   });
-  panels.forEach(p => p.classList.toggle("hidden", p.id !== "panel" + targetId));
+  panels.forEach(p => {
+    const show = p.id === "panel" + targetId;
+    p.hidden = !show;
+  });
   if (targetId === "Stats") renderStats();
   if (targetId === "Board") fetchBoard();
 }
