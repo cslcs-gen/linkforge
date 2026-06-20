@@ -1,211 +1,201 @@
-const tileGrid = document.querySelector("#tileGrid");
-const solvedGroups = document.querySelector("#solvedGroups");
-const statusText = document.querySelector("#status");
-const hintText = document.querySelector("#hintText");
-const groupsFound = document.querySelector("#groupsFound");
-const mistakesLeft = document.querySelector("#mistakesLeft");
-const resetButton = document.querySelector("#resetButton");
+const tileGrid      = document.querySelector("#tileGrid");
+const solvedGroups  = document.querySelector("#solvedGroups");
+const statusText    = document.querySelector("#status");
+const hintBox       = document.querySelector("#hintBox");
+const hintText      = document.querySelector("#hintText");
+const groupsFound   = document.querySelector("#groupsFound");
+const mistakesLeft  = document.querySelector("#mistakesLeft");
+const resetButton   = document.querySelector("#resetButton");
 const shuffleButton = document.querySelector("#shuffleButton");
-const clearButton = document.querySelector("#clearButton");
-const submitButton = document.querySelector("#submitButton");
-
-const VISITOR_COUNT_INTERVAL_MS = 6 * 60 * 60 * 1000;
+const clearButton   = document.querySelector("#clearButton");
+const submitButton  = document.querySelector("#submitButton");
+const nextModal     = document.querySelector("#nextModal");
+const nextPuzzleBtn = document.querySelector("#nextPuzzleBtn");
+const modalSub      = document.querySelector("#modalSub");
 
 const categoryPool = [
-  { title: "Things forged", words: ["BLADE", "CHAIN", "KEY", "COIN"], hint: "Look for objects made by heat or pressure." },
-  { title: "Web terms", words: ["LINK", "NODE", "DOMAIN", "CACHE"], hint: "These belong to the web or networks." },
-  { title: "Puzzle actions", words: ["SORT", "MATCH", "GROUP", "SOLVE"], hint: "These are things you do in this game." },
-  { title: "Fast movement", words: ["DASH", "SPRINT", "BOLT", "RUSH"], hint: "All suggest moving quickly." },
-  { title: "Kitchen tools", words: ["WHISK", "LADLE", "TONGS", "GRATER"], hint: "These live in a kitchen drawer." },
-  { title: "Board games", words: ["CHESS", "GO", "RISK", "CLUE"], hint: "They are tabletop classics." },
-  { title: "Card suits", words: ["HEART", "CLUB", "SPADE", "DIAMOND"], hint: "Think of a standard deck." },
-  { title: "Cloud types", words: ["CIRRUS", "STRATUS", "CUMULUS", "NIMBUS"], hint: "They float in the sky." },
-  { title: "Music marks", words: ["REST", "CLEF", "SHARP", "FLAT"], hint: "You would find them on sheet music." },
-  { title: "Ocean words", words: ["TIDE", "REEF", "WAVE", "CURRENT"], hint: "These are linked to the sea." },
-  { title: "Coding terms", words: ["LOOP", "ARRAY", "CLASS", "STRING"], hint: "A developer uses these." },
-  { title: "Camera words", words: ["LENS", "FLASH", "FOCUS", "SHUTTER"], hint: "They help capture a photo." },
-  { title: "Map features", words: ["ROAD", "RIVER", "BORDER", "LEGEND"], hint: "These appear on maps." },
-  { title: "Gym moves", words: ["SQUAT", "LUNGE", "PLANK", "PRESS"], hint: "They belong in a workout." },
-  { title: "Writing tools", words: ["PENCIL", "MARKER", "ERASER", "PEN"], hint: "They help put ideas on paper." },
-  { title: "Weather events", words: ["RAIN", "HAIL", "SNOW", "FOG"], hint: "These describe weather conditions." },
-  { title: "Browser actions", words: ["OPEN", "CLOSE", "REFRESH", "BOOKMARK"], hint: "You do these in a browser." },
-  { title: "Finance words", words: ["BOND", "STOCK", "YIELD", "FUND"], hint: "These belong to markets." },
-  { title: "Airport words", words: ["GATE", "BAGGAGE", "BOARDING", "RUNWAY"], hint: "Think travel day." },
-  { title: "Coffee words", words: ["LATTE", "MOCHA", "ESPRESSO", "AMERICANO"], hint: "These are cafe orders." },
-  { title: "Geometry", words: ["ANGLE", "RADIUS", "VECTOR", "ARC"], hint: "These are math shape terms." },
-  { title: "Messaging", words: ["THREAD", "REPLY", "PIN", "MENTION"], hint: "They belong in chat apps." },
-  { title: "Security", words: ["TOKEN", "VAULT", "CIPHER", "PATCH"], hint: "They help keep systems safer." },
-  { title: "Game terms", words: ["LEVEL", "SCORE", "BOSS", "QUEST"], hint: "Players know these well." },
-  { title: "Building parts", words: ["DOOR", "ROOF", "WALL", "WINDOW"], hint: "They are parts of a structure." },
-  { title: "Time units", words: ["HOUR", "WEEK", "MONTH", "YEAR"], hint: "They measure time." },
-  { title: "Phone actions", words: ["CALL", "TEXT", "SWIPE", "TAP"], hint: "They happen on a phone." },
-  { title: "Database words", words: ["TABLE", "QUERY", "SCHEMA", "RECORD"], hint: "These belong in databases." },
+  { title: "Things forged",   words: ["BLADE", "CHAIN", "KEY", "COIN"],           hint: "Objects made by heat or pressure." },
+  { title: "Web terms",       words: ["LINK", "NODE", "DOMAIN", "CACHE"],          hint: "These belong to the web or networks." },
+  { title: "Puzzle actions",  words: ["SORT", "MATCH", "GROUP", "SOLVE"],          hint: "Things you do in this game." },
+  { title: "Fast movement",   words: ["DASH", "SPRINT", "BOLT", "RUSH"],           hint: "All suggest moving quickly." },
+  { title: "Kitchen tools",   words: ["WHISK", "LADLE", "TONGS", "GRATER"],        hint: "These live in a kitchen drawer." },
+  { title: "Board games",     words: ["CHESS", "GO", "RISK", "CLUE"],              hint: "Tabletop classics." },
+  { title: "Card suits",      words: ["HEART", "CLUB", "SPADE", "DIAMOND"],        hint: "Think of a standard deck." },
+  { title: "Cloud types",     words: ["CIRRUS", "STRATUS", "CUMULUS", "NIMBUS"],   hint: "They float in the sky." },
+  { title: "Music marks",     words: ["REST", "CLEF", "SHARP", "FLAT"],            hint: "Found on sheet music." },
+  { title: "Ocean words",     words: ["TIDE", "REEF", "WAVE", "CURRENT"],          hint: "Linked to the sea." },
+  { title: "Coding terms",    words: ["LOOP", "ARRAY", "CLASS", "STRING"],         hint: "A developer uses these." },
+  { title: "Camera words",    words: ["LENS", "FLASH", "FOCUS", "SHUTTER"],        hint: "They help capture a photo." },
+  { title: "Map features",    words: ["ROAD", "RIVER", "BORDER", "LEGEND"],        hint: "These appear on maps." },
+  { title: "Gym moves",       words: ["SQUAT", "LUNGE", "PLANK", "PRESS"],         hint: "They belong in a workout." },
+  { title: "Writing tools",   words: ["PENCIL", "MARKER", "ERASER", "PEN"],        hint: "They put ideas on paper." },
+  { title: "Weather events",  words: ["RAIN", "HAIL", "SNOW", "FOG"],              hint: "Weather conditions." },
+  { title: "Browser actions", words: ["OPEN", "CLOSE", "REFRESH", "BOOKMARK"],     hint: "You do these in a browser." },
+  { title: "Finance words",   words: ["BOND", "STOCK", "YIELD", "FUND"],           hint: "These belong to markets." },
+  { title: "Airport words",   words: ["GATE", "BAGGAGE", "BOARDING", "RUNWAY"],    hint: "Think travel day." },
+  { title: "Coffee words",    words: ["LATTE", "MOCHA", "ESPRESSO", "AMERICANO"],  hint: "These are cafe orders." },
+  { title: "Geometry",        words: ["ANGLE", "RADIUS", "VECTOR", "ARC"],         hint: "Math shape terms." },
+  { title: "Messaging",       words: ["THREAD", "REPLY", "PIN", "MENTION"],        hint: "They belong in chat apps." },
+  { title: "Security",        words: ["TOKEN", "VAULT", "CIPHER", "PATCH"],        hint: "They help keep systems safe." },
+  { title: "Game terms",      words: ["LEVEL", "SCORE", "BOSS", "QUEST"],          hint: "Players know these well." },
+  { title: "Building parts",  words: ["DOOR", "ROOF", "WALL", "WINDOW"],           hint: "Parts of a structure." },
+  { title: "Time units",      words: ["HOUR", "WEEK", "MONTH", "YEAR"],            hint: "They measure time." },
+  { title: "Phone actions",   words: ["CALL", "TEXT", "SWIPE", "TAP"],             hint: "They happen on a phone." },
+  { title: "Database words",  words: ["TABLE", "QUERY", "SCHEMA", "RECORD"],       hint: "These belong in databases." },
 ];
-
-// Fixed duplicate words: Finance "INDEX" → "FUND", Database "INDEX" → "SCHEMA"
 
 const puzzleBank = buildPuzzleBank(100);
 
-let puzzleGroups = [];
-let tiles = [];
-let selected = new Set();
-let solved = new Set();
-let mistakes = 0;
+let puzzleGroups       = [];
+let tiles              = [];
+let selected           = new Set();
+let solved             = new Set();
+let mistakes           = 0;
 let currentPuzzleIndex = -1;
 
-// ── Puzzle bank builder ──────────────────────────────────────────────────────
+// ── Puzzle bank ──────────────────────────────────────────────────────────────
 
 function buildPuzzleBank(count) {
   const bank = [];
-  for (let index = 0; index < count; index += 1) {
-    const shuffled = seededShuffle(categoryPool, index + 73);
-    bank.push(shuffled.slice(0, 4).map((group) => ({
-      title: group.title,
-      words: [...group.words],
-      hint: group.hint,
-    })));
+  for (let i = 0; i < count; i++) {
+    const shuffled = seededShuffle(categoryPool, i + 73);
+    bank.push(shuffled.slice(0, 4).map(g => ({ title: g.title, words: [...g.words], hint: g.hint })));
   }
   return bank;
 }
 
 function seededShuffle(items, seed) {
   const copy = [...items];
-  let value = seed;
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    value = (value * 9301 + 49297) % 233280;
-    const swapIndex = value % (index + 1);
-    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  let v = seed;
+  for (let i = copy.length - 1; i > 0; i--) {
+    v = (v * 9301 + 49297) % 233280;
+    const j = v % (i + 1);
+    [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
 }
 
-// ── Tile management ──────────────────────────────────────────────────────────
+// ── Tiles ────────────────────────────────────────────────────────────────────
 
 function createTiles() {
-  tiles = puzzleGroups.flatMap((group, groupIndex) =>
-    group.words.map((word) => ({ word, groupIndex }))
-  );
-  shuffleTiles();
+  tiles = puzzleGroups.flatMap((group, gi) => group.words.map(word => ({ word, gi })));
+  randomShuffle(tiles);
 }
 
-function shuffleTiles() {
-  for (let index = tiles.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [tiles[index], tiles[swapIndex]] = [tiles[swapIndex], tiles[index]];
+function randomShuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
 
 // ── Render ───────────────────────────────────────────────────────────────────
 
 function render() {
-  tileGrid.innerHTML = "";
+  // Solved group cards
   solvedGroups.innerHTML = "";
-
-  puzzleGroups.forEach((group, index) => {
-    if (!solved.has(index)) return;
-
+  puzzleGroups.forEach((group, i) => {
+    if (!solved.has(i)) return;
     const card = document.createElement("div");
-    card.className = `group-card group-${index}`;
-    const title = document.createElement("strong");
-    title.textContent = group.title;
-    const words = document.createElement("span");
-    words.textContent = group.words.join(", ");
-    card.append(title, words);
+    card.className = "group-card group-" + i;
+    card.innerHTML = "<strong>" + group.title + "</strong><span>" + group.words.join(", ") + "</span>";
     solvedGroups.append(card);
   });
 
-  tiles.forEach((tile, index) => {
-    const button = document.createElement("button");
-    button.className = "tile";
-    button.type = "button";
-    button.textContent = tile.word;
-    button.disabled = solved.has(tile.groupIndex);
-    button.classList.toggle("selected", selected.has(index));
-    button.setAttribute("aria-pressed", selected.has(index) ? "true" : "false");
-    button.addEventListener("click", () => toggleTile(index));
-    tileGrid.append(button);
+  // Tiles
+  tileGrid.innerHTML = "";
+  tiles.forEach((tile, i) => {
+    const btn = document.createElement("button");
+    btn.className = "tile" + (selected.has(i) ? " selected" : "");
+    btn.type = "button";
+    btn.textContent = tile.word;
+    btn.disabled = solved.has(tile.gi);
+    btn.setAttribute("aria-pressed", selected.has(i) ? "true" : "false");
+    btn.addEventListener("click", () => toggleTile(i));
+    tileGrid.append(btn);
   });
 
-  groupsFound.textContent = `${solved.size}/4`;
-  mistakesLeft.textContent = String(Math.max(0, 4 - mistakes));
-  submitButton.disabled = selected.size !== 4 || mistakes >= 4 || solved.size === puzzleGroups.length;
+  groupsFound.textContent  = solved.size + "/4";
+  mistakesLeft.textContent = Math.max(0, 4 - mistakes);
+  submitButton.disabled    = selected.size !== 4 || mistakes >= 4 || solved.size === 4;
 }
 
 // ── Game logic ───────────────────────────────────────────────────────────────
 
-function toggleTile(index) {
-  if (solved.has(tiles[index].groupIndex)) return;
-
-  if (selected.has(index)) {
-    selected.delete(index);
+function toggleTile(i) {
+  if (solved.has(tiles[i].gi)) return;
+  if (selected.has(i)) {
+    selected.delete(i);
   } else if (selected.size < 4) {
-    selected.add(index);
+    selected.add(i);
   }
-
-  statusText.textContent = selected.size === 4
-    ? "Submit your link."
-    : "Select four connected tiles.";
+  statusText.textContent = selected.size === 4 ? "Submit your link." : "Select four connected tiles.";
   render();
 }
 
 function submitSelection() {
   if (selected.size !== 4) return;
 
-  // Capture picked tiles BEFORE clearing selection
-  const picked = Array.from(selected).map((index) => tiles[index]);
-  const groupIndex = picked[0].groupIndex;
-  const isMatch = picked.every((tile) => tile.groupIndex === groupIndex);
+  const picked = Array.from(selected).map(i => tiles[i]);
+  const gi     = picked[0].gi;
+  const isMatch = picked.every(t => t.gi === gi);
 
   if (isMatch) {
-    solved.add(groupIndex);
+    solved.add(gi);
     selected.clear();
-    hintText.textContent = "";
+    showHint(false);
 
-    if (solved.size === puzzleGroups.length) {
+    if (solved.size === 4) {
       statusText.textContent = "All links forged!";
       render();
-      showNextPuzzleOverlay();
+      showModal();
     } else {
       statusText.textContent = "Correct link forged.";
       render();
     }
   } else {
-    mistakes += 1;
-    // Generate hint BEFORE clearing so we have tile group info
-    const hint = createMistakeHint(picked);
+    // Capture hint BEFORE clearing, increment mistakes AFTER
+    const hintMsg = buildHint(picked);
+    mistakes++;
     selected.clear();
 
-    hintText.textContent = hint;
     statusText.textContent = mistakes >= 4
       ? "No mistakes left. Reset to try again."
       : "Not a link. Try another group.";
 
+    showHint(true, hintMsg);
     render();
   }
 }
 
-function createMistakeHint(picked) {
-  // Count how many picked tiles belong to each group
+function buildHint(picked) {
+  // Count tiles per group
   const counts = new Map();
-  picked.forEach((tile) => {
-    counts.set(tile.groupIndex, (counts.get(tile.groupIndex) || 0) + 1);
-  });
+  picked.forEach(t => counts.set(t.gi, (counts.get(t.gi) || 0) + 1));
+  const [topGi, topCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
 
-  // Find the group with most tiles selected
-  const strongest = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+  const nextMistakes = mistakes + 1; // mistakes not incremented yet when called
 
-  // "One away" hint
-  if (strongest && strongest[1] === 3) {
-    return `Hint ${mistakes}/4: Three of these belong to "${puzzleGroups[strongest[0]].title}" — one doesn't fit.`;
+  if (topCount === 3) {
+    return "Hint " + nextMistakes + "/4: Three tiles belong to \"" + puzzleGroups[topGi].title + "\" — one doesn't fit.";
   }
 
-  // Category hint — cycle through unsolved groups
-  const unsolvedGroups = puzzleGroups
-    .map((group, index) => ({ group, index }))
-    .filter(({ index }) => !solved.has(index));
+  const unsolved = puzzleGroups
+    .map((g, i) => ({ g, i }))
+    .filter(({ i }) => !solved.has(i));
 
-  const hintGroup = unsolvedGroups[(mistakes - 1) % unsolvedGroups.length]?.group;
-  return hintGroup ? `Hint ${mistakes}/4: ${hintGroup.hint}` : "";
+  const hintGroup = unsolved[mistakes % unsolved.length]?.g;
+  return "Hint " + nextMistakes + "/4: " + (hintGroup ? hintGroup.hint : "Keep trying!");
+}
+
+function showHint(visible, msg) {
+  if (visible && msg) {
+    hintText.textContent = msg;
+    hintBox.hidden = false;
+  } else {
+    hintBox.hidden = true;
+    hintText.textContent = "";
+  }
 }
 
 function clearSelection() {
@@ -218,82 +208,44 @@ function resetPuzzle() {
   selected.clear();
   solved.clear();
   mistakes = 0;
-  currentPuzzleIndex = pickNextPuzzleIndex();
+  showHint(false);
+  hideModal();
+  currentPuzzleIndex = pickNextIndex();
   puzzleGroups = puzzleBank[currentPuzzleIndex];
   createTiles();
   statusText.textContent = "Select four connected tiles.";
-  hintText.textContent = `Puzzle ${currentPuzzleIndex + 1} of ${puzzleBank.length}`;
   render();
 }
 
-function pickNextPuzzleIndex() {
+function pickNextIndex() {
   if (puzzleBank.length < 2) return 0;
-  let next = Math.floor(Math.random() * puzzleBank.length);
-  while (next === currentPuzzleIndex) {
-    next = Math.floor(Math.random() * puzzleBank.length);
-  }
+  let next;
+  do { next = Math.floor(Math.random() * puzzleBank.length); }
+  while (next === currentPuzzleIndex);
   return next;
 }
 
 function shuffleActiveTiles() {
-  const unsolved = tiles.filter((tile) => !solved.has(tile.groupIndex));
-  const fixed = tiles.map((tile, index) => ({ tile, index })).filter(({ tile }) => solved.has(tile.groupIndex));
-
-  for (let index = unsolved.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [unsolved[index], unsolved[swapIndex]] = [unsolved[swapIndex], unsolved[index]];
-  }
-
-  tiles = [];
-  let activeIndex = 0;
-  for (let index = 0; index < 16; index += 1) {
-    const fixedTile = fixed.find((item) => item.index === index);
-    tiles.push(fixedTile ? fixedTile.tile : unsolved[activeIndex]);
-    if (!fixedTile) activeIndex += 1;
-  }
-
+  const unsolved = tiles.filter(t => !solved.has(t.gi));
+  const fixed    = tiles.map((t, i) => ({ t, i })).filter(({ t }) => solved.has(t.gi));
+  randomShuffle(unsolved);
+  let ai = 0;
+  tiles = Array.from({ length: 16 }, (_, i) => {
+    const f = fixed.find(x => x.i === i);
+    return f ? f.t : unsolved[ai++];
+  });
   clearSelection();
 }
 
-// ── Next puzzle overlay ───────────────────────────────────────────────────────
+// ── Modal ────────────────────────────────────────────────────────────────────
 
-function showNextPuzzleOverlay() {
-  // Remove any existing overlay first
-  document.querySelector(".next-puzzle-overlay")?.remove();
+function showModal() {
+  modalSub.textContent = "All 4 links forged on puzzle " + (currentPuzzleIndex + 1) + ". Ready for the next one?";
+  nextModal.hidden = false;
+}
 
-  const overlay = document.createElement("div");
-  overlay.className = "next-puzzle-overlay";
-
-  const card = document.createElement("div");
-  card.className = "next-puzzle-card";
-
-  const heading = document.createElement("h2");
-  heading.textContent = "Puzzle complete!";
-
-  const sub = document.createElement("p");
-  sub.textContent = `All 4 links forged on puzzle ${currentPuzzleIndex + 1}. Ready for the next one?`;
-
-  const btn = document.createElement("button");
-  btn.className = "primary";
-  btn.type = "button";
-  btn.textContent = "Next Puzzle →";
-  btn.addEventListener("click", () => {
-    overlay.remove();
-    resetPuzzle();
-  });
-
-  card.append(heading, sub, btn);
-  overlay.append(card);
-
-  // Also allow tap on backdrop to dismiss
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
-      resetPuzzle();
-    }
-  });
-
-  document.body.append(overlay);
+function hideModal() {
+  nextModal.hidden = true;
 }
 
 // ── Event listeners ──────────────────────────────────────────────────────────
@@ -302,6 +254,10 @@ resetButton.addEventListener("click", resetPuzzle);
 shuffleButton.addEventListener("click", shuffleActiveTiles);
 clearButton.addEventListener("click", clearSelection);
 submitButton.addEventListener("click", submitSelection);
+nextPuzzleBtn.addEventListener("click", () => { hideModal(); resetPuzzle(); });
+
+// Tap backdrop to dismiss
+nextModal.addEventListener("click", e => { if (e.target === nextModal) { hideModal(); resetPuzzle(); } });
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 
