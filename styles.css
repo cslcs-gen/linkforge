@@ -254,9 +254,8 @@ h1 {
 }
 
 .visitor-panel {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2px 12px;
+  display: flex;
+  justify-content: center;
   align-items: center;
   margin-top: 14px;
   padding: 10px 12px;
@@ -269,7 +268,7 @@ h1 {
 .visitor-note {
   min-width: 0;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 750;
 }
 
@@ -279,8 +278,10 @@ h1 {
 }
 
 .visitor-panel strong {
+  display: inline-block;
+  margin-left: 2px;
   color: var(--accent-strong);
-  font-size: 1.25rem;
+  font-size: 0.9rem;
   line-height: 1;
 }
 
