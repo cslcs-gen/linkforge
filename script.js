@@ -17,8 +17,6 @@ const modalSub      = document.querySelector("#modalSub");
 const modalStats    = document.querySelector("#modalStats");
 const modalIcon     = document.querySelector("#modalIcon");
 const modalTitle    = document.querySelector("#modalTitle");
-
-// Stats panel
 const statCleared   = document.querySelector("#statCleared");
 const statStreak    = document.querySelector("#statStreak");
 const statBest      = document.querySelector("#statBest");
@@ -26,53 +24,79 @@ const statPlayed    = document.querySelector("#statPlayed");
 const statPerfect   = document.querySelector("#statPerfect");
 const statAvg       = document.querySelector("#statAvg");
 const resetStatsBtn = document.querySelector("#resetStatsBtn");
-
-// Board panel
 const boardList        = document.querySelector("#boardList");
 const boardSubmitArea  = document.querySelector("#boardSubmitArea");
 const nicknameInput    = document.querySelector("#nicknameInput");
 const submitScoreBtn   = document.querySelector("#submitScoreBtn");
-
-// Tabs
 const tabs   = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".panel");
 
 // ── Config ───────────────────────────────────────────────────────────────────
-// Replace this URL with your deployed Cloudflare Worker URL
 const WORKER_URL = "https://linkforge-scores.cslcs-gen.workers.dev";
 const LS_KEY     = "linkforge:stats";
 const LS_NICK    = "linkforge:nickname";
 
-// ── Category pool ────────────────────────────────────────────────────────────
+// ── Category pool (40 categories, 10 themes) ─────────────────────────────────
 const categoryPool = [
-  { title: "Things forged",   words: ["BLADE", "CHAIN", "KEY", "COIN"],           hint: "Objects made by heat or pressure." },
-  { title: "Web terms",       words: ["LINK", "NODE", "DOMAIN", "CACHE"],          hint: "These belong to the web or networks." },
-  { title: "Puzzle actions",  words: ["SORT", "MATCH", "GROUP", "SOLVE"],          hint: "Things you do in this game." },
-  { title: "Fast movement",   words: ["DASH", "SPRINT", "BOLT", "RUSH"],           hint: "All suggest moving quickly." },
-  { title: "Kitchen tools",   words: ["WHISK", "LADLE", "TONGS", "GRATER"],        hint: "These live in a kitchen drawer." },
-  { title: "Board games",     words: ["CHESS", "GO", "RISK", "CLUE"],              hint: "Tabletop classics." },
-  { title: "Card suits",      words: ["HEART", "CLUB", "SPADE", "DIAMOND"],        hint: "Think of a standard deck." },
-  { title: "Cloud types",     words: ["CIRRUS", "STRATUS", "CUMULUS", "NIMBUS"],   hint: "They float in the sky." },
-  { title: "Music marks",     words: ["REST", "CLEF", "SHARP", "FLAT"],            hint: "Found on sheet music." },
-  { title: "Ocean words",     words: ["TIDE", "REEF", "WAVE", "CURRENT"],          hint: "Linked to the sea." },
-  { title: "Coding terms",    words: ["LOOP", "ARRAY", "CLASS", "STRING"],         hint: "A developer uses these." },
-  { title: "Camera words",    words: ["LENS", "FLASH", "FOCUS", "SHUTTER"],        hint: "They help capture a photo." },
-  { title: "Map features",    words: ["ROAD", "RIVER", "BORDER", "LEGEND"],        hint: "These appear on maps." },
-  { title: "Gym moves",       words: ["SQUAT", "LUNGE", "PLANK", "PRESS"],         hint: "They belong in a workout." },
-  { title: "Writing tools",   words: ["PENCIL", "MARKER", "ERASER", "PEN"],        hint: "They put ideas on paper." },
-  { title: "Weather events",  words: ["RAIN", "HAIL", "SNOW", "FOG"],              hint: "Weather conditions." },
-  { title: "Browser actions", words: ["OPEN", "CLOSE", "REFRESH", "BOOKMARK"],     hint: "You do these in a browser." },
-  { title: "Finance words",   words: ["BOND", "STOCK", "YIELD", "FUND"],           hint: "These belong to markets." },
-  { title: "Airport words",   words: ["GATE", "BAGGAGE", "BOARDING", "RUNWAY"],    hint: "Think travel day." },
-  { title: "Coffee words",    words: ["LATTE", "MOCHA", "ESPRESSO", "AMERICANO"],  hint: "These are cafe orders." },
-  { title: "Geometry",        words: ["ANGLE", "RADIUS", "VECTOR", "ARC"],         hint: "Math shape terms." },
-  { title: "Messaging",       words: ["THREAD", "REPLY", "PIN", "MENTION"],        hint: "They belong in chat apps." },
-  { title: "Security",        words: ["TOKEN", "VAULT", "CIPHER", "PATCH"],        hint: "They help keep systems safe." },
-  { title: "Game terms",      words: ["LEVEL", "SCORE", "BOSS", "QUEST"],          hint: "Players know these well." },
-  { title: "Building parts",  words: ["DOOR", "ROOF", "WALL", "WINDOW"],           hint: "Parts of a structure." },
-  { title: "Time units",      words: ["HOUR", "WEEK", "MONTH", "YEAR"],            hint: "They measure time." },
-  { title: "Phone actions",   words: ["CALL", "TEXT", "SWIPE", "TAP"],             hint: "They happen on a phone." },
-  { title: "Database words",  words: ["TABLE", "QUERY", "SCHEMA", "RECORD"],       hint: "These belong in databases." },
+  // 🎬 Entertainment
+  { title: "Movie genres",       words: ["HORROR", "COMEDY", "THRILLER", "ROMANCE"],         hint: "You would find these on a cinema listing.",         reveal: "These are all movie genres: HORROR, COMEDY, THRILLER, ROMANCE." },
+  { title: "Music genres",       words: ["JAZZ", "BLUES", "REGGAE", "SOUL"],                 hint: "Each one is a style of music.",                     reveal: "These are music genres: JAZZ, BLUES, REGGAE, SOUL." },
+  { title: "TV show types",      words: ["SITCOM", "DRAMA", "REALITY", "DOCUMENTARY"],       hint: "These describe kinds of TV shows.",                 reveal: "TV show types: SITCOM, DRAMA, REALITY, DOCUMENTARY." },
+  { title: "Musical instruments",words: ["DRUM", "FLUTE", "CELLO", "BANJO"],                 hint: "You play each one to make music.",                  reveal: "Musical instruments: DRUM, FLUTE, CELLO, BANJO." },
+
+  // 🍕 Food & Drink
+  { title: "Pasta shapes",       words: ["PENNE", "FUSILLI", "RIGATONI", "FARFALLE"],        hint: "Each one is a type of pasta.",                     reveal: "Pasta shapes: PENNE, FUSILLI, RIGATONI, FARFALLE." },
+  { title: "Classic cocktails",  words: ["MOJITO", "DAIQUIRI", "MARTINI", "NEGRONI"],        hint: "You would order these at a cocktail bar.",          reveal: "Classic cocktails: MOJITO, DAIQUIRI, MARTINI, NEGRONI." },
+  { title: "Desserts",           words: ["BROWNIE", "TIRAMISU", "MOUSSE", "SORBET"],         hint: "Sweet dishes served at the end of a meal.",         reveal: "Desserts: BROWNIE, TIRAMISU, MOUSSE, SORBET." },
+  { title: "Spices",             words: ["CUMIN", "TURMERIC", "PAPRIKA", "CINNAMON"],        hint: "These add flavour and colour to food.",             reveal: "Spices: CUMIN, TURMERIC, PAPRIKA, CINNAMON." },
+
+  // 🌍 Geography
+  { title: "Island groups",      words: ["MALDIVES", "AZORES", "CANARIES", "FAROE"],         hint: "Each one is a group of islands.",                  reveal: "Island groups: MALDIVES, AZORES, CANARIES, FAROE." },
+  { title: "African capitals",   words: ["CAIRO", "NAIROBI", "DAKAR", "ACCRA"],              hint: "These are capital cities in Africa.",               reveal: "African capitals: CAIRO, NAIROBI, DAKAR, ACCRA." },
+  { title: "Mountain ranges",    words: ["ALPS", "ANDES", "ROCKIES", "URALS"],               hint: "These are famous mountain ranges.",                 reveal: "Mountain ranges: ALPS, ANDES, ROCKIES, URALS." },
+  { title: "Asian countries",    words: ["LAOS", "BHUTAN", "MYANMAR", "NEPAL"],              hint: "These are countries in Asia.",                     reveal: "Asian countries: LAOS, BHUTAN, MYANMAR, NEPAL." },
+
+  // 🐾 Nature & Animals
+  { title: "Big cats",           words: ["LION", "TIGER", "JAGUAR", "CHEETAH"],              hint: "These are large wild cats.",                       reveal: "Big cats: LION, TIGER, JAGUAR, CHEETAH." },
+  { title: "Dog breeds",         words: ["POODLE", "BEAGLE", "HUSKY", "CORGI"],              hint: "These are all dog breeds.",                        reveal: "Dog breeds: POODLE, BEAGLE, HUSKY, CORGI." },
+  { title: "Ocean creatures",    words: ["SQUID", "LOBSTER", "SEAHORSE", "MANTA"],           hint: "You would find these under the sea.",               reveal: "Ocean creatures: SQUID, LOBSTER, SEAHORSE, MANTA." },
+  { title: "Trees",              words: ["OAK", "MAPLE", "BIRCH", "CEDAR"],                  hint: "These are all types of tree.",                     reveal: "Trees: OAK, MAPLE, BIRCH, CEDAR." },
+
+  // 🏅 Sports & Games
+  { title: "Olympic sports",     words: ["FENCING", "ARCHERY", "JUDO", "BOBSLED"],           hint: "These are all Olympic sports.",                    reveal: "Olympic sports: FENCING, ARCHERY, JUDO, BOBSLED." },
+  { title: "___ ball",           words: ["BASKET", "FOOT", "VOLLEY", "CANNON"],              hint: "Add the word BALL after each one.",                reveal: "All precede BALL: BASKET, FOOT, VOLLEY, CANNON." },
+  { title: "Card games",         words: ["POKER", "SNAP", "BRIDGE", "RUMMY"],                hint: "These are played with a deck of cards.",            reveal: "Card games: POKER, SNAP, BRIDGE, RUMMY." },
+  { title: "Combat sports",      words: ["BOXING", "WRESTLING", "KARATE", "SUMO"],           hint: "These are one-on-one fighting sports.",             reveal: "Combat sports: BOXING, WRESTLING, KARATE, SUMO." },
+
+  // 🧠 Logic & Wordplay
+  { title: "___ light",          words: ["SUN", "MOON", "SPOT", "FLASH"],                    hint: "Each word can go before LIGHT.",                   reveal: "All precede LIGHT: SUNLIGHT, MOONLIGHT, SPOTLIGHT, FLASHLIGHT." },
+  { title: "___ house",          words: ["TREE", "STORE", "FARM", "POWER"],                  hint: "Each word can go before HOUSE.",                   reveal: "All precede HOUSE: TREEHOUSE, STOREHOUSE, FARMHOUSE, POWERHOUSE." },
+  { title: "Shades of blue",     words: ["NAVY", "COBALT", "TEAL", "INDIGO"],                hint: "These are all shades of blue.",                    reveal: "Shades of blue: NAVY, COBALT, TEAL, INDIGO." },
+  { title: "Shades of red",      words: ["CRIMSON", "SCARLET", "MAROON", "CORAL"],           hint: "These are all shades of red.",                     reveal: "Shades of red: CRIMSON, SCARLET, MAROON, CORAL." },
+
+  // 😂 Pop Culture
+  { title: "Internet slang",     words: ["FIRE", "VIBE", "MOOD", "SLAY"],                    hint: "Words people use online to express feelings.",     reveal: "Internet slang: FIRE, VIBE, MOOD, SLAY." },
+  { title: "Social media actions",words: ["POST", "SHARE", "REACT", "FOLLOW"],               hint: "Things you do on social media.",                   reveal: "Social media actions: POST, SHARE, REACT, FOLLOW." },
+  { title: "Words meaning party", words: ["BASH", "RAVE", "GALA", "FIESTA"],                 hint: "These all mean a celebration.",                    reveal: "All mean party/celebration: BASH, RAVE, GALA, FIESTA." },
+  { title: "Viral video types",  words: ["PRANK", "CHALLENGE", "UNBOXING", "REVIEW"],        hint: "Popular types of online videos.",                  reveal: "Viral video types: PRANK, CHALLENGE, UNBOXING, REVIEW." },
+
+  // 🎭 Arts & Creativity
+  { title: "Dance styles",       words: ["TANGO", "WALTZ", "SALSA", "BALLET"],               hint: "These are all styles of dance.",                   reveal: "Dance styles: TANGO, WALTZ, SALSA, BALLET." },
+  { title: "Art movements",      words: ["CUBISM", "BAROQUE", "DADA", "SURREALISM"],         hint: "These are famous art movements.",                  reveal: "Art movements: CUBISM, BAROQUE, DADA, SURREALISM." },
+  { title: "Artist paint colours",words: ["OCHRE", "SIENNA", "UMBER", "VERMILION"],          hint: "Classic colours used by painters.",                 reveal: "Artist paint colours: OCHRE, SIENNA, UMBER, VERMILION." },
+  { title: "Photography terms",  words: ["EXPOSURE", "APERTURE", "SHUTTER", "BOKEH"],        hint: "Photographers use these words all the time.",      reveal: "Photography terms: EXPOSURE, APERTURE, SHUTTER, BOKEH." },
+
+  // 🏠 Everyday Life
+  { title: "Things in a bedroom",words: ["PILLOW", "DUVET", "WARDROBE", "NIGHTSTAND"],       hint: "You would find all of these in a bedroom.",        reveal: "Bedroom items: PILLOW, DUVET, WARDROBE, NIGHTSTAND." },
+  { title: "Morning routine",    words: ["STRETCH", "SHOWER", "BREW", "COMMUTE"],            hint: "Things many people do every morning.",              reveal: "Morning routine: STRETCH, SHOWER, BREW, COMMUTE." },
+  { title: "At the airport",     words: ["GATE", "BOARDING", "BAGGAGE", "CUSTOMS"],          hint: "You encounter these at an airport.",                reveal: "Airport words: GATE, BOARDING, BAGGAGE, CUSTOMS." },
+  { title: "Things you carry",   words: ["WALLET", "KEYS", "BADGE", "EARBUDS"],              hint: "Everyday items most people carry.",                 reveal: "Things you carry: WALLET, KEYS, BADGE, EARBUDS." },
+
+  // 🔢 Numbers & Patterns
+  { title: "Things in a pair",   words: ["GLOVES", "TWINS", "SOCKS", "CUFFLINKS"],           hint: "These always come in twos.",                       reveal: "Always in pairs: GLOVES, TWINS, SOCKS, CUFFLINKS." },
+  { title: "Things in a dozen",  words: ["EGGS", "ROSES", "DOUGHNUTS", "MONTHS"],            hint: "These are commonly counted in twelves.",            reveal: "Counted in dozens: EGGS, ROSES, DOUGHNUTS, MONTHS." },
+  { title: "Four seasons",       words: ["SPRING", "SUMMER", "AUTUMN", "WINTER"],            hint: "These are the four seasons of the year.",           reveal: "The four seasons: SPRING, SUMMER, AUTUMN, WINTER." },
+  { title: "Compass points",     words: ["NORTH", "SOUTH", "EAST", "WEST"],                  hint: "These are directions on a compass.",                reveal: "Compass directions: NORTH, SOUTH, EAST, WEST." },
 ];
 
 const puzzleBank = buildPuzzleBank(100);
@@ -84,21 +108,18 @@ let selected           = new Set();
 let solved             = new Set();
 let mistakes           = 0;
 let currentPuzzleIndex = -1;
+// Track which category each hint position has already referenced this round
+let hintHistory        = [];
 
 // ── Local stats ──────────────────────────────────────────────────────────────
 function loadStats() {
-  try {
-    return JSON.parse(localStorage.getItem(LS_KEY)) || defaultStats();
-  } catch { return defaultStats(); }
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || defaultStats(); }
+  catch { return defaultStats(); }
 }
-
 function defaultStats() {
   return { cleared: 0, streak: 0, best: 0, played: 0, perfect: 0, totalMistakes: 0 };
 }
-
-function saveStats(s) {
-  localStorage.setItem(LS_KEY, JSON.stringify(s));
-}
+function saveStats(s) { localStorage.setItem(LS_KEY, JSON.stringify(s)); }
 
 function renderStats() {
   const s = loadStats();
@@ -126,9 +147,9 @@ function recordResult(cleared) {
 }
 
 // ── Leaderboard ──────────────────────────────────────────────────────────────
-let boardData        = [];
-let pendingScore     = null;
-let myNickname       = localStorage.getItem(LS_NICK) || "";
+let boardData    = [];
+let pendingScore = null;
+let myNickname   = localStorage.getItem(LS_NICK) || "";
 
 async function fetchBoard() {
   boardList.innerHTML = "<div class='board-loading'>Loading leaderboard&#8230;</div>";
@@ -145,30 +166,18 @@ async function fetchBoard() {
 function renderBoard() {
   const medals = ["🥇", "🥈", "🥉"];
   boardList.innerHTML = "";
-
   if (!boardData.length) {
     boardList.innerHTML = "<div class='board-empty'>No scores yet — be the first!</div>";
     return;
   }
-
   boardData.forEach((entry, i) => {
     const isMe = myNickname && entry.nickname === myNickname;
     const row  = document.createElement("div");
     row.className = "board-row rank-" + (i + 1) + (isMe ? " me" : "");
-
-    const rankEl = document.createElement("div");
-    rankEl.className = "board-rank";
-    rankEl.textContent = medals[i] || (i + 1);
-
-    const nameEl = document.createElement("div");
-    nameEl.className = "board-name";
-    nameEl.textContent = entry.nickname;
-
-    const scoreEl = document.createElement("div");
-    scoreEl.className = "board-score";
-    scoreEl.innerHTML = entry.cleared + " rounds<span>" + entry.perfect + " perfect</span>";
-
-    row.append(rankEl, nameEl, scoreEl);
+    row.innerHTML =
+      "<div class='board-rank'>" + (medals[i] || (i + 1)) + "</div>" +
+      "<div class='board-name'>" + entry.nickname + "</div>" +
+      "<div class='board-score'>" + entry.cleared + " rounds<span>" + entry.perfect + " perfect</span></div>";
     boardList.append(row);
   });
 }
@@ -183,10 +192,12 @@ async function submitScore(nickname, cleared, perfect) {
       body: JSON.stringify({ nickname, cleared, perfect }),
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
-    boardData = await res.json();
+    boardData  = await res.json();
     myNickname = nickname;
     localStorage.setItem(LS_NICK, nickname);
     boardSubmitArea.hidden = true;
+    submitScoreBtn.disabled = false;
+    submitScoreBtn.textContent = "Submit";
     renderBoard();
     pendingScore = null;
   } catch {
@@ -206,7 +217,9 @@ function buildPuzzleBank(count) {
   const bank = [];
   for (let i = 0; i < count; i++) {
     const shuffled = seededShuffle(categoryPool, i + 73);
-    bank.push(shuffled.slice(0, 4).map(g => ({ title: g.title, words: [...g.words], hint: g.hint })));
+    bank.push(shuffled.slice(0, 4).map(g => ({
+      title: g.title, words: [...g.words], hint: g.hint, reveal: g.reveal
+    })));
   }
   return bank;
 }
@@ -283,7 +296,6 @@ function submitSelection() {
     solved.add(gi);
     selected.clear();
     showHint(false);
-
     if (solved.size === 4) {
       statusText.textContent = "All links forged!";
       render();
@@ -298,13 +310,10 @@ function submitSelection() {
     const hintMsg = buildHint(picked);
     mistakes++;
     selected.clear();
-
     statusText.textContent = mistakes >= 4
       ? "No mistakes left. Reset to try again."
       : "Not a link. Try another group.";
-
     showHint(true, hintMsg);
-
     if (mistakes >= 4) {
       render();
       recordResult(false);
@@ -316,19 +325,66 @@ function submitSelection() {
   }
 }
 
+// ── Hint logic (escalating) ──────────────────────────────────────────────────
+//
+// Escalation per category (tracked via hintHistory):
+//   1st time hinting a category → subtle nudge (general hint text)
+//   2nd time same category      → medium: name the category
+//   3rd time same category      → obvious: reveal category + all 4 words
+//
+// If the wrong guess has 3 tiles from one group (one-away), always flag that first.
+
 function buildHint(picked) {
+  const nextMistakeNum = mistakes + 1;
+
+  // ── One-away detection ───────────────────────────────────────────────────
   const counts = new Map();
   picked.forEach(t => counts.set(t.gi, (counts.get(t.gi) || 0) + 1));
   const [topGi, topCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-  const nextMistakes = mistakes + 1;
 
   if (topCount === 3) {
-    return "Hint " + nextMistakes + "/4: Three tiles belong to \"" + puzzleGroups[topGi].title + "\" — one doesn't fit.";
+    // Track this category in hint history
+    recordHintFor(topGi);
+    const timesHinted = hintHistory.filter(h => h === topGi).length;
+    return buildEscalatedHint(nextMistakeNum, topGi, timesHinted, true);
   }
 
-  const unsolved   = puzzleGroups.map((g, i) => ({ g, i })).filter(({ i }) => !solved.has(i));
-  const hintGroup  = unsolved[mistakes % unsolved.length]?.g;
-  return "Hint " + nextMistakes + "/4: " + (hintGroup ? hintGroup.hint : "Keep going!");
+  // ── General wrong guess: pick an unsolved group to hint ─────────────────
+  // Prefer a group the player has NOT been hinted about yet
+  const unsolved = puzzleGroups
+    .map((g, i) => ({ g, i }))
+    .filter(({ i }) => !solved.has(i));
+
+  const unhinted = unsolved.filter(({ i }) => !hintHistory.includes(i));
+  const target   = unhinted.length > 0
+    ? unhinted[mistakes % unhinted.length]
+    : unsolved[mistakes % unsolved.length];
+
+  const targetGi = target.i;
+  recordHintFor(targetGi);
+  const timesHinted = hintHistory.filter(h => h === targetGi).length;
+  return buildEscalatedHint(nextMistakeNum, targetGi, timesHinted, false);
+}
+
+function recordHintFor(gi) {
+  hintHistory.push(gi);
+}
+
+function buildEscalatedHint(mistakeNum, gi, timesHinted, isOneAway) {
+  const group  = puzzleGroups[gi];
+  const prefix = "Hint " + mistakeNum + "/4: ";
+  const oneAwaySuffix = isOneAway ? "You are one away! " : "";
+
+  if (timesHinted <= 1) {
+    // Level 1 — subtle nudge
+    return prefix + oneAwaySuffix + group.hint;
+  } else if (timesHinted === 2) {
+    // Level 2 — name the category
+    return prefix + oneAwaySuffix + "The category is \"" + group.title + "\". " + group.hint;
+  } else {
+    // Level 3 — full reveal
+    return prefix + oneAwaySuffix + group.reveal;
+  }
 }
 
 function showHint(visible, msg) {
@@ -341,6 +397,7 @@ function showHint(visible, msg) {
   }
 }
 
+// ── Puzzle control ───────────────────────────────────────────────────────────
 function clearSelection() {
   selected.clear();
   statusText.textContent = "Select four connected tiles.";
@@ -350,7 +407,8 @@ function clearSelection() {
 function resetPuzzle() {
   selected.clear();
   solved.clear();
-  mistakes = 0;
+  mistakes    = 0;
+  hintHistory = [];
   showHint(false);
   hideModal();
   currentPuzzleIndex = pickNextIndex();
@@ -386,13 +444,7 @@ function showCompletionModal() {
   modalIcon.textContent  = mistakes === 0 ? "⭐" : "🎉";
   modalTitle.textContent = mistakes === 0 ? "Perfect clear!" : "Puzzle complete!";
   modalSub.textContent   = "Puzzle " + (currentPuzzleIndex + 1) + " done with " + mistakes + " mistake" + (mistakes === 1 ? "" : "s") + ".";
-
-  modalStats.innerHTML = [
-    { label: "Cleared", value: s.cleared },
-    { label: "Streak",  value: s.streak  },
-    { label: "Best",    value: s.best    },
-  ].map(x => "<div class='modal-stat-item'><strong>" + x.value + "</strong><span>" + x.label + "</span></div>").join("");
-
+  renderModalStats(s);
   nextModal.hidden = false;
 }
 
@@ -401,14 +453,18 @@ function showFailModal() {
   modalIcon.textContent  = "💥";
   modalTitle.textContent = "Out of mistakes!";
   modalSub.textContent   = "Streak reset. Puzzle " + (currentPuzzleIndex + 1) + " not cleared.";
+  renderModalStats(s);
+  nextModal.hidden = false;
+}
 
+function renderModalStats(s) {
   modalStats.innerHTML = [
     { label: "Cleared", value: s.cleared },
     { label: "Streak",  value: s.streak  },
     { label: "Best",    value: s.best    },
-  ].map(x => "<div class='modal-stat-item'><strong>" + x.value + "</strong><span>" + x.label + "</span></div>").join("");
-
-  nextModal.hidden = false;
+  ].map(x =>
+    "<div class='modal-stat-item'><strong>" + x.value + "</strong><span>" + x.label + "</span></div>"
+  ).join("");
 }
 
 function hideModal() { nextModal.hidden = true; }
@@ -420,10 +476,7 @@ function switchTab(targetId) {
     t.classList.toggle("active", active);
     t.setAttribute("aria-selected", active ? "true" : "false");
   });
-  panels.forEach(p => {
-    p.classList.toggle("hidden", p.id !== "panel" + targetId);
-  });
-
+  panels.forEach(p => p.classList.toggle("hidden", p.id !== "panel" + targetId));
   if (targetId === "Stats") renderStats();
   if (targetId === "Board") fetchBoard();
 }
@@ -433,11 +486,9 @@ resetButton.addEventListener("click", resetPuzzle);
 shuffleButton.addEventListener("click", shuffleActiveTiles);
 clearButton.addEventListener("click", clearSelection);
 submitButton.addEventListener("click", submitSelection);
+
 resetStatsBtn.addEventListener("click", () => {
-  if (confirm("Reset all your local stats?")) {
-    saveStats(defaultStats());
-    renderStats();
-  }
+  if (confirm("Reset all your local stats?")) { saveStats(defaultStats()); renderStats(); }
 });
 
 nextPuzzleBtn.addEventListener("click", () => { hideModal(); resetPuzzle(); });
@@ -451,10 +502,7 @@ modalBoardBtn.addEventListener("click", () => {
 });
 
 tabs.forEach(tab => {
-  tab.addEventListener("click", () => {
-    const id = tab.id.replace("tab", "");
-    switchTab(id);
-  });
+  tab.addEventListener("click", () => switchTab(tab.id.replace("tab", "")));
 });
 
 submitScoreBtn.addEventListener("click", () => {
