@@ -157,9 +157,24 @@ async function fetchBoard() {
     const res = await fetch(WORKER_URL + "/scores");
     if (!res.ok) throw new Error("HTTP " + res.status);
     boardData = await res.json();
+    // If board is truly empty (fresh deploy), show seeded placeholder data
+    if (boardData.length === 0) {
+      boardData = [
+        { nickname: "PuzzleKing88", cleared: 23, perfect: 4 },
+        { nickname: "LinkMaster",   cleared: 17, perfect: 2 },
+        { nickname: "SingaporeAce", cleared: 11, perfect: 1 },
+      ];
+    }
     renderBoard();
   } catch {
     boardList.innerHTML = "<div class='board-error'>Could not load leaderboard. Check back soon.</div>";
+  }
+  // Always show submit area when opening Top 10 tab if player has a score
+  const s = loadStats();
+  if (s.cleared > 0) {
+    showSubmitArea(s.cleared, s.perfect);
+  } else {
+    boardSubmitArea.hidden = true;
   }
 }
 
@@ -209,6 +224,13 @@ async function submitScore(nickname, cleared, perfect) {
 function showSubmitArea(cleared, perfect) {
   pendingScore = { cleared, perfect };
   nicknameInput.value = myNickname;
+  // Change label if they already have a nickname (returning player)
+  const label = boardSubmitArea.querySelector(".board-submit-label");
+  if (label) {
+    label.textContent = myNickname
+      ? "Update your score on the leaderboard!"
+      : "You have a score worth submitting!";
+  }
   boardSubmitArea.hidden = false;
 }
 
@@ -497,8 +519,7 @@ nextModal.addEventListener("click", e => { if (e.target === nextModal) { hideMod
 modalBoardBtn.addEventListener("click", () => {
   hideModal();
   switchTab("Board");
-  const s = loadStats();
-  if (s.cleared > 0) showSubmitArea(s.cleared, s.perfect);
+  // fetchBoard() inside switchTab will handle showing submit area
 });
 
 tabs.forEach(tab => {
