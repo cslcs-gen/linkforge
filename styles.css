@@ -169,21 +169,10 @@ h1 {
   font-weight: 650;
 }
 
-.group-0 {
-  background: var(--gold);
-}
-
-.group-1 {
-  background: var(--blue);
-}
-
-.group-2 {
-  background: var(--rose);
-}
-
-.group-3 {
-  background: var(--violet);
-}
+.group-0 { background: var(--gold); }
+.group-1 { background: var(--blue); }
+.group-2 { background: var(--rose); }
+.group-3 { background: var(--violet); }
 
 .tile-grid {
   display: grid;
@@ -253,12 +242,13 @@ h1 {
   background: #fff;
 }
 
+/* ── Visitor panel ── */
 .visitor-panel {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin-top: 14px;
   padding: 10px 12px;
   border: 1px solid rgba(32, 33, 36, 0.09);
@@ -274,41 +264,66 @@ h1 {
 
 .visitor-copyright {
   color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 750;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.01em;
   line-height: 1.2;
   text-align: center;
+  text-transform: uppercase;
 }
 
-.app-footer {
+.visitor-version {
+  color: var(--accent);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Next puzzle overlay ── */
+.next-puzzle-overlay {
+  position: fixed;
+  inset: 0;
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
-  gap: 8px 12px;
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 650;
+  background: rgba(32, 33, 36, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  animation: fadeIn 300ms ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.next-puzzle-card {
+  width: min(90%, 360px);
+  padding: 28px 24px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 32px 80px rgba(31, 42, 55, 0.22);
   text-align: center;
 }
 
-.visit-count {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
+.next-puzzle-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
 }
 
-.visit-count strong {
-  color: var(--ink);
-  font-size: 0.72rem;
-  line-height: 1;
-}
-
-.visit-count[data-state="error"] strong {
+.next-puzzle-card p {
+  margin: 0 0 20px;
   color: var(--muted);
+  font-size: 0.92rem;
 }
 
+.next-puzzle-card .primary {
+  width: 100%;
+  font-size: 1rem;
+}
+
+/* ── Responsive ── */
 @media (max-width: 540px) {
   .app {
     padding: 14px;
