@@ -115,13 +115,29 @@ let hintHistory        = [];
 
 // ── Local stats ──────────────────────────────────────────────────────────────
 function loadStats() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || defaultStats(); }
-  catch { return defaultStats(); }
+  try {
+    // Try current key
+    var data = localStorage.getItem(LS_KEY);
+    if (data) return JSON.parse(data);
+    // Try legacy key variants from older versions
+    var legacy = localStorage.getItem("lf_stats") || localStorage.getItem("linkforge_stats");
+    if (legacy) {
+      var parsed = JSON.parse(legacy);
+      localStorage.setItem(LS_KEY, JSON.stringify(parsed)); // migrate
+      return parsed;
+    }
+    return defaultStats();
+  } catch { return defaultStats(); }
 }
 function defaultStats() {
   return { cleared: 0, streak: 0, best: 0, played: 0, perfect: 0, totalMistakes: 0 };
 }
-function saveStats(s) { localStorage.setItem(LS_KEY, JSON.stringify(s)); }
+function saveStats(s) {
+  var json = JSON.stringify(s);
+  localStorage.setItem(LS_KEY, json);
+  // Backup under a secondary key so accidental resets can be recovered
+  localStorage.setItem(LS_KEY + ":backup", json);
+}
 
 function renderStats() {
   const s = loadStats();
@@ -567,8 +583,12 @@ shuffleButton.addEventListener("click", shuffleActiveTiles);
 clearButton.addEventListener("click", clearSelection);
 submitButton.addEventListener("click", submitSelection);
 
-resetStatsBtn.addEventListener("click", () => {
-  if (confirm("Reset all your local stats?")) { saveStats(defaultStats()); renderStats(); }
+resetStatsBtn.addEventListener("click", function() {
+  var backup = localStorage.getItem(LS_KEY + ":backup");
+  var msg = backup
+    ? "Reset stats? Your data is backed up and can be restored.\nOK = Reset | Cancel = Keep"
+    : "Reset all your local stats? This cannot be undone.";
+  if (confirm(msg)) { saveStats(defaultStats()); renderStats(); }
 });
 
 nextPuzzleBtn.addEventListener("click", () => { hideModal(); resetPuzzle(); });
