@@ -514,20 +514,35 @@ function shareGame() {
   const url  = "https://linkforge.buildjoynow.com";
   const text = "Can you forge all 4 links? Play LinkForge — a daily word puzzle!";
 
-  if (navigator.share) {
-    navigator.share({ title: "LinkForge", text, url }).catch(() => {});
+  // navigator.share needs a user gesture and HTTPS — works on Android/iOS Chrome/Safari
+  if (navigator.share && location.protocol === "https:") {
+    navigator.share({ title: "LinkForge", text, url })
+      .then(() => {})
+      .catch(err => {
+        // User cancelled or share failed — fallback to clipboard
+        if (err.name !== "AbortError") copyToClipboard(url);
+      });
   } else {
-    navigator.clipboard.writeText(url).then(() => showToast()).catch(() => {
-      // Fallback: select a temp input
-      const el = document.createElement("input");
-      el.value = url;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
-      showToast();
-    });
+    copyToClipboard(url);
   }
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showToast).catch(fallbackCopy);
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const el = document.createElement("textarea");
+  el.value = typeof text === "string" ? text : "https://linkforge.buildjoynow.com";
+  el.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0";
+  document.body.appendChild(el);
+  el.focus(); el.select();
+  try { document.execCommand("copy"); showToast(); } catch {}
+  document.body.removeChild(el);
 }
 
 function showToast() {
