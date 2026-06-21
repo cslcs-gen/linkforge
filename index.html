@@ -102,6 +102,7 @@ h1 { font-size: clamp(1.8rem, 8vw, 2.8rem); font-weight: 900; letter-spacing: -0
   -webkit-tap-highlight-color: transparent;
 }
 .icon-button:hover, .icon-button:active { border-color: var(--accent); background: var(--accent-bg); }
+.icon-button svg { pointer-events: none; display: block; }
 
 /* ── Tabs ── */
 .tabs {
@@ -123,7 +124,7 @@ h1 { font-size: clamp(1.8rem, 8vw, 2.8rem); font-weight: 900; letter-spacing: -0
 
 /* ── Panels ── */
 .panel { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
-.panel[hidden] { display: none !important; }
+.panel-hidden { display: none !important; }
 
 /* ── Stat cards ── */
 .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -387,7 +388,7 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
       </div>
     </div>
 
-    <div class="panel" id="panelStats" hidden>
+    <div class="panel panel-hidden" id="panelStats">
       <div class="stats-grid">
         <div class="stat-card accent">
           <span class="stat-label">Rounds cleared</span>
@@ -417,7 +418,7 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
       <button class="btn-danger" id="resetStatsBtn" type="button">Reset my stats</button>
     </div>
 
-    <div class="panel" id="panelBoard" hidden>
+    <div class="panel panel-hidden" id="panelBoard">
       <p class="board-sub">Global top 10 &mdash; rounds cleared without failing</p>
       <div id="boardList" class="board-list"><div class="board-loading">Loading&#8230;</div></div>
       <div class="board-submit" id="boardSubmitArea" hidden>
