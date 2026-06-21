@@ -156,7 +156,7 @@ let myNickname   = localStorage.getItem(LS_NICK) || "";
 async function fetchBoard() {
   boardList.innerHTML = "<div class='board-loading'>Loading leaderboard&#8230;</div>";
   try {
-    const res = await fetch(WORKER_URL + "/scores");
+    const res = await fetch(WORKER_URL + "/scores", { mode: "cors", cache: "no-store" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     boardData = await res.json();
     // If board is truly empty (fresh deploy), show seeded placeholder data
@@ -498,12 +498,16 @@ function switchTab(targetId) {
   tabs.forEach(function(t) {
     var isActive = t.id === "tab" + targetId;
     t.className = isActive ? "tab active" : "tab";
-    t.setAttribute("aria-selected", isActive ? "true" : "false");
   });
   panels.forEach(function(p) {
     var show = p.id === "panel" + targetId;
-    p.hidden = !show;
-    p.style.setProperty("display", show ? "flex" : "none", "important");
+    if (show) {
+      p.classList.remove("panel-hidden");
+      p.style.display = "flex";
+    } else {
+      p.classList.add("panel-hidden");
+      p.style.display = "none";
+    }
   });
   if (targetId === "Stats") renderStats();
   if (targetId === "Board") fetchBoard();
@@ -557,6 +561,7 @@ function showToast() {
 
 // ── Event listeners ──────────────────────────────────────────────────────────
 shareButton.addEventListener("click", shareGame);
+shareButton.addEventListener("touchend", function(e) { e.preventDefault(); shareGame(); });
 resetButton.addEventListener("click", resetPuzzle);
 shuffleButton.addEventListener("click", shuffleActiveTiles);
 clearButton.addEventListener("click", clearSelection);
