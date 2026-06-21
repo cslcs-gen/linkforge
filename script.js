@@ -495,14 +495,15 @@ function hideModal() { nextModal.hidden = true; }
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
 function switchTab(targetId) {
-  tabs.forEach(t => {
-    const active = t.id === "tab" + targetId;
-    t.classList.toggle("active", active);
-    t.setAttribute("aria-selected", active ? "true" : "false");
+  tabs.forEach(function(t) {
+    var isActive = t.id === "tab" + targetId;
+    t.className = isActive ? "tab active" : "tab";
+    t.setAttribute("aria-selected", isActive ? "true" : "false");
   });
-  panels.forEach(p => {
-    const show = p.id === "panel" + targetId;
+  panels.forEach(function(p) {
+    var show = p.id === "panel" + targetId;
     p.hidden = !show;
+    p.style.setProperty("display", show ? "flex" : "none", "important");
   });
   if (targetId === "Stats") renderStats();
   if (targetId === "Board") fetchBoard();
@@ -574,8 +575,10 @@ modalBoardBtn.addEventListener("click", () => {
   // fetchBoard() inside switchTab will handle showing submit area
 });
 
-tabs.forEach(tab => {
-  tab.addEventListener("click", () => switchTab(tab.id.replace("tab", "")));
+tabs.forEach(function(tab) {
+  tab.addEventListener("click", function() {
+    switchTab(this.id.replace("tab", ""));
+  });
 });
 
 submitScoreBtn.addEventListener("click", () => {
