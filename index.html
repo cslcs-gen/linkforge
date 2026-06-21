@@ -123,7 +123,7 @@ h1 { font-size: clamp(1.8rem, 8vw, 2.8rem); font-weight: 900; letter-spacing: -0
 .tab.active { color: var(--accent-strong); border-bottom-color: var(--accent); background: #fff; }
 
 /* ── Panels ── */
-.panel { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+.panel { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; min-height: 520px; }
 .panel-hidden { display: none !important; }
 
 /* ── Stat cards ── */
@@ -318,7 +318,7 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
 @media (max-width: 480px) {
   body { padding: 12px; }
   .header-top { padding: 16px 16px 12px; }
-  .panel { padding: 14px 16px; gap: 10px; }
+  .panel { padding: 14px 16px; gap: 10px; min-height: 460px; }
   .tile { min-height: 62px; font-size: 0.78rem; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
 }
