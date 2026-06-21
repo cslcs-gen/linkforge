@@ -17,601 +17,652 @@ const modalSub      = document.querySelector("#modalSub");
 const modalStats    = document.querySelector("#modalStats");
 const modalIcon     = document.querySelector("#modalIcon");
 const modalTitle    = document.querySelector("#modalTitle");
+const modalShare    = document.querySelector("#modalShare");
 const statCleared   = document.querySelector("#statCleared");
 const statStreak    = document.querySelector("#statStreak");
 const statBest      = document.querySelector("#statBest");
 const statPlayed    = document.querySelector("#statPlayed");
 const statPerfect   = document.querySelector("#statPerfect");
 const statAvg       = document.querySelector("#statAvg");
+const streakBadge   = document.querySelector("#streakBadge");
 const resetStatsBtn = document.querySelector("#resetStatsBtn");
 const boardList        = document.querySelector("#boardList");
 const boardSubmitArea  = document.querySelector("#boardSubmitArea");
 const nicknameInput    = document.querySelector("#nicknameInput");
 const submitScoreBtn   = document.querySelector("#submitScoreBtn");
-const shareButton  = document.querySelector("#shareButton");
-const shareToast   = document.querySelector("#shareToast");
-const tabs   = document.querySelectorAll(".tab");
-const panels = document.querySelectorAll(".panel");
+const diffButtons      = document.querySelectorAll(".diff-btn");
+const tabs             = document.querySelectorAll(".tab");
+const panels           = document.querySelectorAll(".panel");
+const shareButton      = document.querySelector("#shareButton");
+const shareToast       = document.querySelector("#shareToast");
 
 // ── Config ───────────────────────────────────────────────────────────────────
 const WORKER_URL = "https://linkforge-scores.cslcs-gen.workers.dev";
 const LS_KEY     = "linkforge:stats";
 const LS_NICK    = "linkforge:nickname";
+const LS_DIFF    = "linkforge:difficulty";
 
-// ── Category pool (40 categories, 10 themes) ─────────────────────────────────
+// ── Category pool (90 categories, 360 unique words) ──────────────────────────
 const categoryPool = [
-  // 🎬 Entertainment
-  { title: "Movie genres",       words: ["HORROR", "COMEDY", "THRILLER", "ROMANCE"],         hint: "You would find these on a cinema listing.",         reveal: "These are all movie genres: HORROR, COMEDY, THRILLER, ROMANCE." },
-  { title: "Music genres",       words: ["JAZZ", "BLUES", "REGGAE", "SOUL"],                 hint: "Each one is a style of music.",                     reveal: "These are music genres: JAZZ, BLUES, REGGAE, SOUL." },
-  { title: "TV show types",      words: ["SITCOM", "DRAMA", "REALITY", "DOCUMENTARY"],       hint: "These describe kinds of TV shows.",                 reveal: "TV show types: SITCOM, DRAMA, REALITY, DOCUMENTARY." },
-  { title: "Musical instruments",words: ["DRUM", "FLUTE", "CELLO", "BANJO"],                 hint: "You play each one to make music.",                  reveal: "Musical instruments: DRUM, FLUTE, CELLO, BANJO." },
-
-  // 🍕 Food & Drink
-  { title: "Pasta shapes",       words: ["PENNE", "FUSILLI", "RIGATONI", "FARFALLE"],        hint: "Each one is a type of pasta.",                     reveal: "Pasta shapes: PENNE, FUSILLI, RIGATONI, FARFALLE." },
-  { title: "Classic cocktails",  words: ["MOJITO", "DAIQUIRI", "MARTINI", "NEGRONI"],        hint: "You would order these at a cocktail bar.",          reveal: "Classic cocktails: MOJITO, DAIQUIRI, MARTINI, NEGRONI." },
-  { title: "Desserts",           words: ["BROWNIE", "TIRAMISU", "MOUSSE", "SORBET"],         hint: "Sweet dishes served at the end of a meal.",         reveal: "Desserts: BROWNIE, TIRAMISU, MOUSSE, SORBET." },
-  { title: "Spices",             words: ["CUMIN", "TURMERIC", "PAPRIKA", "CINNAMON"],        hint: "These add flavour and colour to food.",             reveal: "Spices: CUMIN, TURMERIC, PAPRIKA, CINNAMON." },
-
-  // 🌍 Geography
-  { title: "Island groups",      words: ["MALDIVES", "AZORES", "CANARIES", "FAROE"],         hint: "Each one is a group of islands.",                  reveal: "Island groups: MALDIVES, AZORES, CANARIES, FAROE." },
-  { title: "African capitals",   words: ["CAIRO", "NAIROBI", "DAKAR", "ACCRA"],              hint: "These are capital cities in Africa.",               reveal: "African capitals: CAIRO, NAIROBI, DAKAR, ACCRA." },
-  { title: "Mountain ranges",    words: ["ALPS", "ANDES", "ROCKIES", "URALS"],               hint: "These are famous mountain ranges.",                 reveal: "Mountain ranges: ALPS, ANDES, ROCKIES, URALS." },
-  { title: "Asian countries",    words: ["LAOS", "BHUTAN", "MYANMAR", "NEPAL"],              hint: "These are countries in Asia.",                     reveal: "Asian countries: LAOS, BHUTAN, MYANMAR, NEPAL." },
-
-  // 🐾 Nature & Animals
-  { title: "Big cats",           words: ["LION", "TIGER", "JAGUAR", "CHEETAH"],              hint: "These are large wild cats.",                       reveal: "Big cats: LION, TIGER, JAGUAR, CHEETAH." },
-  { title: "Dog breeds",         words: ["POODLE", "BEAGLE", "HUSKY", "CORGI"],              hint: "These are all dog breeds.",                        reveal: "Dog breeds: POODLE, BEAGLE, HUSKY, CORGI." },
-  { title: "Ocean creatures",    words: ["SQUID", "LOBSTER", "SEAHORSE", "MANTA"],           hint: "You would find these under the sea.",               reveal: "Ocean creatures: SQUID, LOBSTER, SEAHORSE, MANTA." },
-  { title: "Trees",              words: ["OAK", "MAPLE", "BIRCH", "CEDAR"],                  hint: "These are all types of tree.",                     reveal: "Trees: OAK, MAPLE, BIRCH, CEDAR." },
-
-  // 🏅 Sports & Games
-  { title: "Olympic sports",     words: ["FENCING", "ARCHERY", "JUDO", "BOBSLED"],           hint: "These are all Olympic sports.",                    reveal: "Olympic sports: FENCING, ARCHERY, JUDO, BOBSLED." },
-  { title: "___ ball",           words: ["BASKET", "FOOT", "VOLLEY", "CANNON"],              hint: "Add the word BALL after each one.",                reveal: "All precede BALL: BASKET, FOOT, VOLLEY, CANNON." },
-  { title: "Card games",         words: ["POKER", "SNAP", "BRIDGE", "RUMMY"],                hint: "These are played with a deck of cards.",            reveal: "Card games: POKER, SNAP, BRIDGE, RUMMY." },
-  { title: "Combat sports",      words: ["BOXING", "WRESTLING", "KARATE", "SUMO"],           hint: "These are one-on-one fighting sports.",             reveal: "Combat sports: BOXING, WRESTLING, KARATE, SUMO." },
-
-  // 🧠 Logic & Wordplay
-  { title: "___ light",          words: ["SUN", "MOON", "SPOT", "FLASH"],                    hint: "Each word can go before LIGHT.",                   reveal: "All precede LIGHT: SUNLIGHT, MOONLIGHT, SPOTLIGHT, FLASHLIGHT." },
-  { title: "___ house",          words: ["TREE", "STORE", "FARM", "POWER"],                  hint: "Each word can go before HOUSE.",                   reveal: "All precede HOUSE: TREEHOUSE, STOREHOUSE, FARMHOUSE, POWERHOUSE." },
-  { title: "Shades of blue",     words: ["NAVY", "COBALT", "TEAL", "INDIGO"],                hint: "These are all shades of blue.",                    reveal: "Shades of blue: NAVY, COBALT, TEAL, INDIGO." },
-  { title: "Shades of red",      words: ["CRIMSON", "SCARLET", "MAROON", "CORAL"],           hint: "These are all shades of red.",                     reveal: "Shades of red: CRIMSON, SCARLET, MAROON, CORAL." },
-
-  // 😂 Pop Culture
-  { title: "Internet slang",     words: ["FIRE", "VIBE", "MOOD", "SLAY"],                    hint: "Words people use online to express feelings.",     reveal: "Internet slang: FIRE, VIBE, MOOD, SLAY." },
-  { title: "Social media actions",words: ["POST", "SHARE", "REACT", "FOLLOW"],               hint: "Things you do on social media.",                   reveal: "Social media actions: POST, SHARE, REACT, FOLLOW." },
-  { title: "Words meaning party", words: ["BASH", "RAVE", "GALA", "FIESTA"],                 hint: "These all mean a celebration.",                    reveal: "All mean party/celebration: BASH, RAVE, GALA, FIESTA." },
-  { title: "Viral video types",  words: ["PRANK", "CHALLENGE", "UNBOXING", "REVIEW"],        hint: "Popular types of online videos.",                  reveal: "Viral video types: PRANK, CHALLENGE, UNBOXING, REVIEW." },
-
-  // 🎭 Arts & Creativity
-  { title: "Dance styles",       words: ["TANGO", "WALTZ", "SALSA", "BALLET"],               hint: "These are all styles of dance.",                   reveal: "Dance styles: TANGO, WALTZ, SALSA, BALLET." },
-  { title: "Art movements",      words: ["CUBISM", "BAROQUE", "DADA", "SURREALISM"],         hint: "These are famous art movements.",                  reveal: "Art movements: CUBISM, BAROQUE, DADA, SURREALISM." },
-  { title: "Artist paint colours",words: ["OCHRE", "SIENNA", "UMBER", "VERMILION"],          hint: "Classic colours used by painters.",                 reveal: "Artist paint colours: OCHRE, SIENNA, UMBER, VERMILION." },
-  { title: "Photography terms",  words: ["EXPOSURE", "APERTURE", "SHUTTER", "BOKEH"],        hint: "Photographers use these words all the time.",      reveal: "Photography terms: EXPOSURE, APERTURE, SHUTTER, BOKEH." },
-
-  // 🏠 Everyday Life
-  { title: "Things in a bedroom",words: ["PILLOW", "DUVET", "WARDROBE", "NIGHTSTAND"],       hint: "You would find all of these in a bedroom.",        reveal: "Bedroom items: PILLOW, DUVET, WARDROBE, NIGHTSTAND." },
-  { title: "Morning routine",    words: ["STRETCH", "SHOWER", "BREW", "COMMUTE"],            hint: "Things many people do every morning.",              reveal: "Morning routine: STRETCH, SHOWER, BREW, COMMUTE." },
-  { title: "At the airport",     words: ["GATE", "BOARDING", "BAGGAGE", "CUSTOMS"],          hint: "You encounter these at an airport.",                reveal: "Airport words: GATE, BOARDING, BAGGAGE, CUSTOMS." },
-  { title: "Things you carry",   words: ["WALLET", "KEYS", "BADGE", "EARBUDS"],              hint: "Everyday items most people carry.",                 reveal: "Things you carry: WALLET, KEYS, BADGE, EARBUDS." },
-
-  // 🔢 Numbers & Patterns
-  { title: "Things in a pair",   words: ["GLOVES", "TWINS", "SOCKS", "CUFFLINKS"],           hint: "These always come in twos.",                       reveal: "Always in pairs: GLOVES, TWINS, SOCKS, CUFFLINKS." },
-  { title: "Things in a dozen",  words: ["EGGS", "ROSES", "DOUGHNUTS", "MONTHS"],            hint: "These are commonly counted in twelves.",            reveal: "Counted in dozens: EGGS, ROSES, DOUGHNUTS, MONTHS." },
-  { title: "Four seasons",       words: ["SPRING", "SUMMER", "AUTUMN", "WINTER"],            hint: "These are the four seasons of the year.",           reveal: "The four seasons: SPRING, SUMMER, AUTUMN, WINTER." },
-  { title: "Compass points",     words: ["NORTH", "SOUTH", "EAST", "WEST"],                  hint: "These are directions on a compass.",                reveal: "Compass directions: NORTH, SOUTH, EAST, WEST." },
+  {d:1,title:"Primary colours",words:["RED", "BLUE", "YELLOW", "GREEN"],hint:"The most basic colours you learn as a child.",reveal:""},
+  {d:1,title:"Fruits",words:["MANGO", "APPLE", "GRAPE", "PEACH"],hint:"All things you can eat fresh from a tree or vine.",reveal:""},
+  {d:1,title:"Breakfast foods",words:["TOAST", "CEREAL", "BACON", "WAFFLE"],hint:"Things people commonly eat in the morning.",reveal:""},
+  {d:1,title:"Things you wear",words:["BELT", "SCARF", "GLOVES", "BOOTS"],hint:"Items of clothing or accessories.",reveal:""},
+  {d:1,title:"Baby animals",words:["KITTEN", "PUPPY", "FOAL", "CALF"],hint:"Young versions of common animals.",reveal:""},
+  {d:1,title:"School subjects",words:["MATHS", "HISTORY", "SCIENCE", "ART"],hint:"Subjects taught in school.",reveal:""},
+  {d:1,title:"Things at a beach",words:["SAND", "SHELL", "WAVE", "TOWEL"],hint:"Things you find or bring to the beach.",reveal:""},
+  {d:1,title:"Vehicles",words:["BUS", "TRAIN", "FERRY", "TRAM"],hint:"Ways to get from A to B.",reveal:""},
+  {d:1,title:"Things that fly",words:["KITE", "BALLOON", "DRONE", "ROCKET"],hint:"Objects that travel through the air.",reveal:""},
+  {d:1,title:"Sports equipment",words:["BAT", "NET", "HELMET", "RACKET"],hint:"Gear used in various sports.",reveal:""},
+  {d:1,title:"Words meaning happy",words:["GLAD", "JOYFUL", "ELATED", "CHEERFUL"],hint:"All describe a positive mood.",reveal:""},
+  {d:1,title:"Words meaning big",words:["HUGE", "VAST", "GIANT", "MASSIVE"],hint:"All mean large in size.",reveal:""},
+  {d:1,title:"Things that are round",words:["COIN", "WHEEL", "GLOBE", "RING"],hint:"Objects with a circular or spherical shape.",reveal:""},
+  {d:1,title:"Things in a kitchen",words:["OVEN", "SINK", "KETTLE", "FRIDGE"],hint:"Appliances or fixtures found in a kitchen.",reveal:""},
+  {d:1,title:"Parts of a face",words:["CHIN", "CHEEK", "BROW", "JAW"],hint:"Features on a human face.",reveal:""},
+  {d:1,title:"Wild animals",words:["LION", "TIGER", "BEAR", "WOLF"],hint:"Large predators found in the wild.",reveal:""},
+  {d:1,title:"Colours of a rainbow",words:["VIOLET", "INDIGO", "ORANGE", "WHITE"],hint:"Colours seen in or associated with a rainbow.",reveal:""},
+  {d:1,title:"Things that float",words:["RAFT", "CORK", "BUOY", "LEAF"],hint:"Objects that stay on the surface of water.",reveal:""},
+  {d:1,title:"Parts of a body",words:["ELBOW", "ANKLE", "WRIST", "KNEE"],hint:"Joints or parts of the human body.",reveal:""},
+  {d:1,title:"Holidays",words:["CHRISTMAS", "EASTER", "DIWALI", "EID"],hint:"Annual celebrations from around the world.",reveal:""},
+  {d:1,title:"Things in a bedroom",words:["PILLOW", "DUVET", "WARDROBE", "NIGHTSTAND"],hint:"Furniture or items found in a bedroom.",reveal:""},
+  {d:1,title:"Words meaning cold",words:["FREEZING", "CHILLY", "FROSTY", "ICY"],hint:"All describe low temperatures.",reveal:""},
+  {d:1,title:"Things in a park",words:["BENCH", "FOUNTAIN", "POND", "SWING"],hint:"Features you find in a public park.",reveal:""},
+  {d:1,title:"Vegetables",words:["CARROT", "ONION", "BROCCOLI", "SPINACH"],hint:"Common vegetables found in a grocery store.",reveal:""},
+  {d:1,title:"Musical genres",words:["JAZZ", "POP", "ROCK", "BLUES"],hint:"Broad styles of music.",reveal:""},
+  {d:1,title:"Things you carry",words:["WALLET", "KEYS", "BADGE", "EARBUDS"],hint:"Everyday items most people carry.",reveal:""},
+  {d:1,title:"Morning routine",words:["STRETCH", "SHOWER", "BREW", "COMMUTE"],hint:"Things many people do every morning.",reveal:""},
+  {d:1,title:"Things that are hot",words:["LAVA", "SAUNA", "CHILLI", "FORGE"],hint:"Things associated with extreme heat.",reveal:""},
+  {d:1,title:"Words meaning tired",words:["WEARY", "DROWSY", "DRAINED", "SPENT"],hint:"All describe feeling low on energy.",reveal:""},
+  {d:1,title:"Social media actions",words:["POST", "SHARE", "REACT", "FOLLOW"],hint:"Things you do on social media platforms.",reveal:""},
+  {d:2,title:"Dog breeds",words:["POODLE", "BEAGLE", "HUSKY", "CORGI"],hint:"These are all breeds of dog.",reveal:""},
+  {d:2,title:"Dance styles",words:["TANGO", "WALTZ", "SALSA", "BALLET"],hint:"These are all styles of dance.",reveal:""},
+  {d:2,title:"Card games",words:["POKER", "SNAP", "BRIDGE", "RUMMY"],hint:"Games played with a standard deck of cards.",reveal:""},
+  {d:2,title:"Olympic sports",words:["FENCING", "ARCHERY", "JUDO", "BOBSLED"],hint:"Sports that feature in the Olympic Games.",reveal:""},
+  {d:2,title:"African capitals",words:["CAIRO", "NAIROBI", "DAKAR", "ACCRA"],hint:"Capital cities located in Africa.",reveal:""},
+  {d:2,title:"Island groups",words:["MALDIVES", "AZORES", "CANARIES", "FAROE"],hint:"Each one is a group of islands.",reveal:""},
+  {d:2,title:"Mountain ranges",words:["ALPS", "ANDES", "ROCKIES", "URALS"],hint:"Famous mountain ranges around the world.",reveal:""},
+  {d:2,title:"Asian countries",words:["LAOS", "BHUTAN", "MYANMAR", "NEPAL"],hint:"Countries located in Asia.",reveal:""},
+  {d:2,title:"Pasta shapes",words:["PENNE", "FUSILLI", "RIGATONI", "FARFALLE"],hint:"Types of Italian pasta.",reveal:""},
+  {d:2,title:"Classic cocktails",words:["MOJITO", "DAIQUIRI", "MARTINI", "NEGRONI"],hint:"Famous cocktails you would order at a bar.",reveal:""},
+  {d:2,title:"Desserts",words:["BROWNIE", "TIRAMISU", "MOUSSE", "SORBET"],hint:"Sweet dishes served at the end of a meal.",reveal:""},
+  {d:2,title:"Spices",words:["CUMIN", "TURMERIC", "PAPRIKA", "CINNAMON"],hint:"These add flavour and aroma to food.",reveal:""},
+  {d:2,title:"Combat sports",words:["BOXING", "WRESTLING", "KARATE", "SUMO"],hint:"One-on-one fighting sports.",reveal:""},
+  {d:2,title:"Things in a dozen",words:["EGGS", "ROSES", "DOUGHNUTS", "MONTHS"],hint:"Commonly counted or sold in twelves.",reveal:""},
+  {d:2,title:"Four seasons",words:["SPRING", "SUMMER", "AUTUMN", "WINTER"],hint:"The four seasons of the year.",reveal:""},
+  {d:2,title:"Compass points",words:["NORTH", "SOUTH", "EAST", "WEST"],hint:"Directions found on a compass.",reveal:""},
+  {d:2,title:"Words meaning party",words:["BASH", "RAVE", "GALA", "FIESTA"],hint:"All mean a celebration or party.",reveal:""},
+  {d:2,title:"Viral video types",words:["PRANK", "CHALLENGE", "UNBOXING", "REVIEW"],hint:"Popular categories of online video content.",reveal:""},
+  {d:2,title:"Shades of blue",words:["NAVY", "COBALT", "TEAL", "AZURE"],hint:"These are all shades of the colour blue.",reveal:""},
+  {d:2,title:"Shades of red",words:["CRIMSON", "SCARLET", "MAROON", "CORAL"],hint:"These are all shades of the colour red.",reveal:""},
+  {d:2,title:"___ ball",words:["BASKET", "FOOT", "VOLLEY", "CANNON"],hint:"Add the word BALL after each one.",reveal:""},
+  {d:2,title:"___ house",words:["TREE", "STORE", "FARM", "POWER"],hint:"Add the word HOUSE after each one.",reveal:""},
+  {d:2,title:"___ light",words:["SUN", "MOON", "SPOT", "FLASH"],hint:"Add the word LIGHT after each one.",reveal:""},
+  {d:2,title:"Internet slang",words:["FIRE", "VIBE", "MOOD", "SLAY"],hint:"Words people use online to express feelings.",reveal:""},
+  {d:2,title:"Coffee orders",words:["LATTE", "MOCHA", "ESPRESSO", "AMERICANO"],hint:"Drinks you would order at a coffee shop.",reveal:""},
+  {d:2,title:"At the airport",words:["GATE", "BOARDING", "BAGGAGE", "CUSTOMS"],hint:"Words you encounter at an airport.",reveal:""},
+  {d:2,title:"Things in a pair",words:["TWINS", "SOCKS", "CUFFLINKS", "MITTENS"],hint:"Things that always come in twos.",reveal:""},
+  {d:2,title:"Board games",words:["CHESS", "RISK", "CLUE", "SCRABBLE"],hint:"Classic games played on a board.",reveal:""},
+  {d:2,title:"Ocean creatures",words:["SQUID", "LOBSTER", "SEAHORSE", "MANTA"],hint:"Creatures found beneath the sea.",reveal:""},
+  {d:2,title:"Trees",words:["OAK", "MAPLE", "BIRCH", "CEDAR"],hint:"Types of tree found in forests.",reveal:""},
+  {d:2,title:"Card suits",words:["HEART", "CLUB", "SPADE", "DIAMOND"],hint:"The four suits in a standard deck.",reveal:""},
+  {d:2,title:"Big cats",words:["JAGUAR", "CHEETAH", "PUMA", "LEOPARD"],hint:"Large wild cats from around the world.",reveal:""},
+  {d:2,title:"Musical instruments",words:["DRUM", "FLUTE", "CELLO", "BANJO"],hint:"Instruments you play to make music.",reveal:""},
+  {d:2,title:"Movie genres",words:["HORROR", "COMEDY", "THRILLER", "ROMANCE"],hint:"Categories you would see on a cinema listing.",reveal:""},
+  {d:2,title:"Photography terms",words:["EXPOSURE", "APERTURE", "SHUTTER", "BOKEH"],hint:"Terms used in photography.",reveal:""},
+  {d:3,title:"Art movements",words:["CUBISM", "BAROQUE", "DADA", "SURREALISM"],hint:"Famous movements in the history of art.",reveal:""},
+  {d:3,title:"Artist paint colours",words:["OCHRE", "SIENNA", "UMBER", "VERMILION"],hint:"Classic pigment colours used by painters.",reveal:""},
+  {d:3,title:"Cloud types",words:["CIRRUS", "STRATUS", "CUMULUS", "NIMBUS"],hint:"Scientific names for types of cloud.",reveal:""},
+  {d:3,title:"Music notation",words:["REST", "CLEF", "SHARP", "FLAT"],hint:"Symbols found on a sheet of music.",reveal:""},
+  {d:3,title:"Geometry terms",words:["RADIUS", "VECTOR", "ARC", "TANGENT"],hint:"Terms used in geometry and mathematics.",reveal:""},
+  {d:3,title:"Mythology creatures",words:["CENTAUR", "SPHINX", "MINOTAUR", "HARPY"],hint:"Creatures from ancient mythology.",reveal:""},
+  {d:3,title:"Chess pieces",words:["ROOK", "BISHOP", "KNIGHT", "PAWN"],hint:"Pieces used in the game of chess.",reveal:""},
+  {d:3,title:"Architectural styles",words:["GOTHIC", "NEOCLASSICAL", "BRUTALIST", "TUDOR"],hint:"Styles of architecture from different eras.",reveal:""},
+  {d:3,title:"Wine regions",words:["BORDEAUX", "TUSCANY", "RIOJA", "BAROSSA"],hint:"Famous wine-producing regions of the world.",reveal:""},
+  {d:3,title:"Ocean zones",words:["ABYSSAL", "PELAGIC", "BENTHIC", "PHOTIC"],hint:"Scientific zones found in the deep ocean.",reveal:""},
+  {d:3,title:"Astronomy terms",words:["NEBULA", "PULSAR", "QUASAR", "ZENITH"],hint:"Terms used in astronomy and space science.",reveal:""},
+  {d:3,title:"Ancient civilisations",words:["SUMERIAN", "PHOENICIAN", "NUBIAN", "MINOAN"],hint:"Ancient civilisations from around the world.",reveal:""},
+  {d:3,title:"Opera terms",words:["ARIA", "LIBRETTO", "TENOR", "SOPRANO"],hint:"Terms associated with opera.",reveal:""},
+  {d:3,title:"___ stone",words:["LIME", "COBBLE", "GRAVE", "CORNER"],hint:"Add the word STONE after each one.",reveal:""},
+  {d:3,title:"___ fire",words:["CAMP", "CROSS", "GUN", "RAPID"],hint:"Add the word FIRE after each one.",reveal:""},
+  {d:3,title:"Fencing terms",words:["PARRY", "RIPOSTE", "LUNGE", "TOUCHE"],hint:"Terms used in the sport of fencing.",reveal:""},
+  {d:3,title:"Rhetorical devices",words:["SIMILE", "IRONY", "HYPERBOLE", "ALLUSION"],hint:"Devices used in writing and speech.",reveal:""},
+  {d:3,title:"Economic terms",words:["TARIFF", "DEFICIT", "SUBSIDY", "EMBARGO"],hint:"Terms used in economics and trade.",reveal:""},
+  {d:3,title:"Philosophical terms",words:["AXIOM", "EMPIRICAL", "DIALECTIC", "DOGMA"],hint:"Concepts from philosophy.",reveal:""},
+  {d:3,title:"Cocktail ingredients",words:["BITTERS", "VERMOUTH", "GRENADINE", "SYRUP"],hint:"Ingredients commonly used in cocktails.",reveal:""},
+  {d:3,title:"Types of map",words:["TOPOGRAPHIC", "CHOROPLETH", "CONTOUR", "CADASTRAL"],hint:"Different types of map used in geography.",reveal:""},
+  {d:3,title:"Film techniques",words:["DOLLY", "MONTAGE", "DISSOLVE", "TRACKING"],hint:"Techniques used in filmmaking.",reveal:""},
+  {d:3,title:"Logical fallacies",words:["STRAWMAN", "SLIPPERY", "ADHOMINEM", "CIRCULAR"],hint:"Types of logical fallacy in argumentation.",reveal:""},
+  {d:3,title:"Geological eras",words:["JURASSIC", "TRIASSIC", "PERMIAN", "DEVONIAN"],hint:"Periods of geological time.",reveal:""},
+  {d:3,title:"Jazz subgenres",words:["BEBOP", "FUSION", "DIXIE", "MODAL"],hint:"Styles within the genre of jazz.",reveal:""},
 ];
 
-const puzzleBank = buildPuzzleBank(100);
+// ── Puzzle bank builder ──────────────────────────────────────────────────────
+// difficulty: 1=Easy (4 Easy groups), 2=Medium (2E+2M), 3=Hard (1E+1M+2H)
+function buildDailyPuzzle(dateStr, difficulty) {
+  const seed = hashStr(dateStr + difficulty);
+  const easy   = seededShuffle(categoryPool.filter(c=>c.d===1), seed);
+  const medium = seededShuffle(categoryPool.filter(c=>c.d===2), seed+1);
+  const hard   = seededShuffle(categoryPool.filter(c=>c.d===3), seed+2);
+  var groups;
+  if (difficulty === 1) groups = easy.slice(0,4);
+  else if (difficulty === 3) groups = [easy[0], medium[0], hard[0], hard[1]];
+  else groups = [easy[0], easy[1], medium[0], medium[1]]; // default medium
+  return groups.map(g => ({ title:g.title, words:[...g.words], hint:g.hint, reveal:g.reveal||g.hint, d:g.d }));
+}
+
+function buildFreePuzzle(index, difficulty) {
+  const seed = index + 73 + difficulty * 1000;
+  const easy   = seededShuffle(categoryPool.filter(c=>c.d===1), seed);
+  const medium = seededShuffle(categoryPool.filter(c=>c.d===2), seed+1);
+  const hard   = seededShuffle(categoryPool.filter(c=>c.d===3), seed+2);
+  var groups;
+  if (difficulty === 1) groups = easy.slice(0,4);
+  else if (difficulty === 3) groups = [easy[0], medium[0], hard[0], hard[1]];
+  else groups = [easy[0], easy[1], medium[0], medium[1]];
+  return groups.map(g => ({ title:g.title, words:[...g.words], hint:g.hint, reveal:g.reveal||g.hint, d:g.d }));
+}
+
+function hashStr(str) {
+  var hash = 5381;
+  for (var i=0; i<str.length; i++) hash = ((hash<<5)+hash)^str.charCodeAt(i);
+  return Math.abs(hash);
+}
+
+function seededShuffle(items, seed) {
+  const copy = [...items];
+  var v = seed;
+  for (var i=copy.length-1; i>0; i--) {
+    v = (v*9301+49297)%233280;
+    var j = v%(i+1);
+    var tmp = copy[i]; copy[i]=copy[j]; copy[j]=tmp;
+  }
+  return copy;
+}
+
+function getTodayStr() {
+  const d = new Date();
+  return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+}
 
 // ── Game state ───────────────────────────────────────────────────────────────
-let puzzleGroups       = [];
-let tiles              = [];
-let selected           = new Set();
-let solved             = new Set();
-let mistakes           = 0;
-let currentPuzzleIndex = -1;
-// Track which category each hint position has already referenced this round
-let hintHistory        = [];
+var puzzleGroups       = [];
+var tiles              = [];
+var selected           = new Set();
+var solved             = new Set();
+var mistakes           = 0;
+var currentPuzzleIndex = -1;
+var isDaily            = false;
+var difficulty         = parseInt(localStorage.getItem(LS_DIFF)||"2");
+var hintHistory        = [];
+var moveHistory        = [];  // for emoji share card: "C"=correct, "W"=wrong
 
 // ── Local stats ──────────────────────────────────────────────────────────────
 function loadStats() {
   try {
-    // Try current key
     var data = localStorage.getItem(LS_KEY);
     if (data) return JSON.parse(data);
-    // Try legacy key variants from older versions
-    var legacy = localStorage.getItem("lf_stats") || localStorage.getItem("linkforge_stats");
-    if (legacy) {
-      var parsed = JSON.parse(legacy);
-      localStorage.setItem(LS_KEY, JSON.stringify(parsed)); // migrate
-      return parsed;
-    }
+    var legacy = localStorage.getItem("lf_stats")||localStorage.getItem("linkforge_stats");
+    if (legacy) { var p=JSON.parse(legacy); localStorage.setItem(LS_KEY,JSON.stringify(p)); return p; }
     return defaultStats();
-  } catch { return defaultStats(); }
+  } catch(e) { return defaultStats(); }
 }
 function defaultStats() {
-  return { cleared: 0, streak: 0, best: 0, played: 0, perfect: 0, totalMistakes: 0 };
+  return { cleared:0, streak:0, best:0, played:0, perfect:0, totalMistakes:0,
+           lastDate:"", milestones:[] };
 }
 function saveStats(s) {
   var json = JSON.stringify(s);
   localStorage.setItem(LS_KEY, json);
-  // Backup under a secondary key so accidental resets can be recovered
-  localStorage.setItem(LS_KEY + ":backup", json);
+  localStorage.setItem(LS_KEY+":backup", json);
 }
-
-function renderStats() {
-  const s = loadStats();
-  statCleared.textContent = s.cleared;
-  statStreak.textContent  = s.streak;
-  statBest.textContent    = s.best;
-  statPlayed.textContent  = s.played;
-  statPerfect.textContent = s.perfect;
-  statAvg.textContent     = s.played > 0 ? (s.totalMistakes / s.played).toFixed(1) : "—";
-}
-
 function recordResult(cleared) {
-  const s = loadStats();
+  var s = loadStats();
   s.played++;
   s.totalMistakes += mistakes;
   if (cleared) {
     s.cleared++;
     s.streak++;
     if (s.streak > s.best) s.best = s.streak;
-    if (mistakes === 0) s.perfect++;
+    if (mistakes===0) s.perfect++;
+    checkMilestone(s);
   } else {
     s.streak = 0;
   }
   saveStats(s);
 }
 
+// Milestone thresholds
+var MILESTONES = [
+  {n:1,  label:"First Clear",  icon:"🌱"},
+  {n:7,  label:"Week Streak",  icon:"🔥"},
+  {n:14, label:"Fortnight",    icon:"💪"},
+  {n:30, label:"Month Streak", icon:"⭐"},
+  {n:50, label:"50 Cleared",   icon:"🏅"},
+  {n:100,label:"Century",      icon:"👑"},
+];
+
+function checkMilestone(s) {
+  if (!s.milestones) s.milestones = [];
+  MILESTONES.forEach(function(m) {
+    var key = "cleared_"+m.n;
+    if (s.cleared >= m.n && !s.milestones.includes(key)) {
+      s.milestones.push(key);
+      showMilestoneToast(m);
+    }
+    var skey = "streak_"+m.n;
+    if (s.streak >= m.n && !s.milestones.includes(skey)) {
+      s.milestones.push(skey);
+      showMilestoneToast(m);
+    }
+  });
+}
+
+function showMilestoneToast(m) {
+  var toast = document.getElementById("shareToast");
+  toast.textContent = m.icon+" "+m.label+" unlocked!";
+  toast.hidden = false;
+  toast.classList.add("visible");
+  setTimeout(function() {
+    toast.classList.remove("visible");
+    setTimeout(function() { toast.hidden=true; toast.textContent="Link copied!"; },220);
+  }, 3000);
+}
+
+function renderStats() {
+  var s = loadStats();
+  statCleared.textContent = s.cleared;
+  statStreak.textContent  = s.streak;
+  statBest.textContent    = s.best;
+  statPlayed.textContent  = s.played;
+  statPerfect.textContent = s.perfect;
+  statAvg.textContent     = s.played>0 ? (s.totalMistakes/s.played).toFixed(1) : "—";
+  renderStreakBadge(s.streak);
+  renderMilestonesPanel(s);
+}
+
+function renderStreakBadge(streak) {
+  if (!streakBadge) return;
+  if (streak >= 30)      { streakBadge.textContent="👑 "+streak; streakBadge.className="streak-badge s3"; }
+  else if (streak >= 7)  { streakBadge.textContent="🔥 "+streak; streakBadge.className="streak-badge s2"; }
+  else if (streak >= 1)  { streakBadge.textContent="⚡ "+streak; streakBadge.className="streak-badge s1"; }
+  else                   { streakBadge.textContent="";            streakBadge.className="streak-badge"; }
+}
+
+function renderMilestonesPanel(s) {
+  var el = document.getElementById("milestonesList");
+  if (!el) return;
+  if (!s.milestones || s.milestones.length===0) {
+    el.innerHTML = "<p class='milestone-empty'>Complete puzzles to earn badges!</p>"; return;
+  }
+  el.innerHTML = "";
+  MILESTONES.forEach(function(m) {
+    var ck = s.milestones.includes("cleared_"+m.n);
+    var sk = s.milestones.includes("streak_"+m.n);
+    if (ck||sk) {
+      var badge = document.createElement("div");
+      badge.className = "milestone-badge";
+      badge.innerHTML = "<span>"+m.icon+"</span><span>"+m.label+"</span>";
+      el.appendChild(badge);
+    }
+  });
+}
+
+// ── Difficulty ───────────────────────────────────────────────────────────────
+function setDifficulty(d) {
+  difficulty = d;
+  localStorage.setItem(LS_DIFF, d);
+  diffButtons.forEach(function(btn) {
+    btn.classList.toggle("active", parseInt(btn.dataset.d)===d);
+  });
+}
+
 // ── Leaderboard ──────────────────────────────────────────────────────────────
-let boardData    = [];
-let pendingScore = null;
-let myNickname   = localStorage.getItem(LS_NICK) || "";
+var boardData    = [];
+var pendingScore = null;
+var myNickname   = localStorage.getItem(LS_NICK)||"";
 
 async function fetchBoard() {
-  boardList.innerHTML = "<div class='board-loading'>Loading leaderboard&#8230;</div>";
+  boardList.innerHTML = "<div class='board-loading'>Loading&#8230;</div>";
   try {
-    const res = await fetch(WORKER_URL + "/scores", { mode: "cors", cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    var res = await fetch(WORKER_URL+"/scores", {mode:"cors",cache:"no-store"});
+    if (!res.ok) throw new Error("HTTP "+res.status);
     boardData = await res.json();
-    // If board is truly empty (fresh deploy), show seeded placeholder data
-    if (boardData.length === 0) {
-      boardData = [
-        { nickname: "PuzzleKing88", cleared: 23, perfect: 4 },
-        { nickname: "LinkMaster",   cleared: 17, perfect: 2 },
-        { nickname: "SingaporeAce", cleared: 11, perfect: 1 },
-      ];
-    }
+    if (!boardData.length) boardData = [
+      {nickname:"PuzzleKing88", cleared:23, perfect:4},
+      {nickname:"LinkMaster",   cleared:17, perfect:2},
+      {nickname:"SingaporeAce", cleared:11, perfect:1},
+    ];
     renderBoard();
-  } catch {
-    boardList.innerHTML = "<div class='board-error'>Could not load leaderboard. Check back soon.</div>";
+  } catch(e) {
+    boardList.innerHTML = "<div class='board-error'>Could not load leaderboard.</div>";
   }
-  // Always show submit area when opening Top 10 tab if player has a score
-  const s = loadStats();
-  if (s.cleared > 0) {
-    showSubmitArea(s.cleared, s.perfect);
-  } else {
-    boardSubmitArea.hidden = true;
-  }
+  var s = loadStats();
+  if (s.cleared>0) showSubmitArea(s.cleared, s.perfect);
+  else boardSubmitArea.hidden=true;
 }
 
 function renderBoard() {
-  const medals = ["🥇", "🥈", "🥉"];
-  boardList.innerHTML = "";
-  if (!boardData.length) {
-    boardList.innerHTML = "<div class='board-empty'>No scores yet — be the first!</div>";
-    return;
-  }
-  boardData.forEach((entry, i) => {
-    const isMe = myNickname && entry.nickname === myNickname;
-    const row  = document.createElement("div");
-    row.className = "board-row rank-" + (i + 1) + (isMe ? " me" : "");
-    row.innerHTML =
-      "<div class='board-rank'>" + (medals[i] || (i + 1)) + "</div>" +
-      "<div class='board-name'>" + entry.nickname + "</div>" +
-      "<div class='board-score'>" + entry.cleared + " rounds<span>" + entry.perfect + " perfect</span></div>";
-    boardList.append(row);
+  var medals=["🥇","🥈","🥉"];
+  boardList.innerHTML="";
+  if (!boardData.length) { boardList.innerHTML="<div class='board-empty'>No scores yet — be the first!</div>"; return; }
+  boardData.forEach(function(entry,i) {
+    var isMe = myNickname && entry.nickname===myNickname;
+    var row = document.createElement("div");
+    row.className="board-row rank-"+(i+1)+(isMe?" me":"");
+    row.innerHTML="<div class='board-rank'>"+(medals[i]||(i+1))+"</div>"+
+      "<div class='board-name'>"+entry.nickname+"</div>"+
+      "<div class='board-score'>"+entry.cleared+" rounds<span>"+entry.perfect+" perfect</span></div>";
+    boardList.appendChild(row);
   });
 }
 
 async function submitScore(nickname, cleared, perfect) {
-  submitScoreBtn.disabled = true;
-  submitScoreBtn.textContent = "Submitting…";
+  submitScoreBtn.disabled=true; submitScoreBtn.textContent="Submitting…";
   try {
-    const res = await fetch(WORKER_URL + "/scores", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nickname, cleared, perfect }),
-    });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    boardData  = await res.json();
-    myNickname = nickname;
-    localStorage.setItem(LS_NICK, nickname);
-    boardSubmitArea.hidden = true;
-    submitScoreBtn.disabled = false;
-    submitScoreBtn.textContent = "Submit";
-    renderBoard();
-    pendingScore = null;
-  } catch {
-    submitScoreBtn.textContent = "Retry";
-    submitScoreBtn.disabled = false;
-  }
+    var res = await fetch(WORKER_URL+"/scores",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({nickname,cleared,perfect})});
+    if (!res.ok) throw new Error("HTTP "+res.status);
+    boardData=await res.json(); myNickname=nickname;
+    localStorage.setItem(LS_NICK,nickname);
+    boardSubmitArea.hidden=true;
+    submitScoreBtn.disabled=false; submitScoreBtn.textContent="🏆 Submit";
+    renderBoard(); pendingScore=null;
+  } catch(e) { submitScoreBtn.textContent="Retry"; submitScoreBtn.disabled=false; }
 }
 
-function showSubmitArea(cleared, perfect) {
-  pendingScore = { cleared, perfect };
-  nicknameInput.value = myNickname;
-  // Change label if they already have a nickname (returning player)
-  const label = boardSubmitArea.querySelector(".board-submit-label");
-  if (label) {
-    label.textContent = myNickname
-      ? "Update your score on the leaderboard!"
-      : "You have a score worth submitting!";
-  }
-  boardSubmitArea.hidden = false;
-}
-
-// ── Puzzle bank ──────────────────────────────────────────────────────────────
-function buildPuzzleBank(count) {
-  const bank = [];
-  for (let i = 0; i < count; i++) {
-    const shuffled = seededShuffle(categoryPool, i + 73);
-    bank.push(shuffled.slice(0, 4).map(g => ({
-      title: g.title, words: [...g.words], hint: g.hint, reveal: g.reveal
-    })));
-  }
-  return bank;
-}
-
-function seededShuffle(items, seed) {
-  const copy = [...items];
-  let v = seed;
-  for (let i = copy.length - 1; i > 0; i--) {
-    v = (v * 9301 + 49297) % 233280;
-    const j = v % (i + 1);
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
+function showSubmitArea(cleared,perfect) {
+  pendingScore={cleared,perfect};
+  nicknameInput.value=myNickname;
+  var lbl=boardSubmitArea.querySelector(".board-submit-label");
+  if (lbl) lbl.textContent=myNickname?"Update your score!":"You have a score to submit!";
+  boardSubmitArea.hidden=false;
 }
 
 // ── Tiles ────────────────────────────────────────────────────────────────────
 function createTiles() {
-  tiles = puzzleGroups.flatMap((g, gi) => g.words.map(word => ({ word, gi })));
+  tiles=puzzleGroups.flatMap(function(g,gi){ return g.words.map(function(w){ return {word:w,gi:gi}; }); });
   randomShuffle(tiles);
 }
-
 function randomShuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
+  for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=arr[i];arr[i]=arr[j];arr[j]=t;}
 }
 
 // ── Render ───────────────────────────────────────────────────────────────────
 function render() {
-  solvedGroups.innerHTML = "";
-  puzzleGroups.forEach((group, i) => {
-    if (!solved.has(i)) return;
-    const card = document.createElement("div");
-    card.className = "group-card group-" + i;
-    card.innerHTML = "<strong>" + group.title + "</strong><span>" + group.words.join(", ") + "</span>";
-    solvedGroups.append(card);
+  solvedGroups.innerHTML="";
+  puzzleGroups.forEach(function(group,i) {
+    if(!solved.has(i)) return;
+    var card=document.createElement("div");
+    card.className="group-card group-"+i;
+    card.innerHTML="<strong>"+group.title+"</strong><span>"+group.words.join(", ")+"</span>";
+    solvedGroups.appendChild(card);
   });
-
-  tileGrid.innerHTML = "";
-  tiles.forEach((tile, i) => {
-    const btn = document.createElement("button");
-    btn.className = "tile" + (selected.has(i) ? " selected" : "");
-    btn.type = "button";
-    btn.textContent = tile.word;
-    btn.disabled = solved.has(tile.gi);
-    btn.setAttribute("aria-pressed", selected.has(i) ? "true" : "false");
-    btn.addEventListener("click", () => toggleTile(i));
-    tileGrid.append(btn);
+  tileGrid.innerHTML="";
+  tiles.forEach(function(tile,i) {
+    var btn=document.createElement("button");
+    btn.className="tile"+(selected.has(i)?" selected":"");
+    btn.type="button"; btn.textContent=tile.word;
+    btn.disabled=solved.has(tile.gi);
+    btn.setAttribute("aria-pressed",selected.has(i)?"true":"false");
+    btn.addEventListener("click",function(){ toggleTile(i); });
+    tileGrid.appendChild(btn);
   });
-
-  groupsFound.textContent  = solved.size + "/4";
-  mistakesLeft.textContent = Math.max(0, 4 - mistakes);
-  submitButton.disabled    = selected.size !== 4 || mistakes >= 4 || solved.size === 4;
+  groupsFound.textContent=solved.size+"/4";
+  mistakesLeft.textContent=Math.max(0,4-mistakes);
+  submitButton.disabled=selected.size!==4||mistakes>=4||solved.size===4;
+  renderStreakBadge(loadStats().streak);
 }
 
 // ── Game logic ───────────────────────────────────────────────────────────────
 function toggleTile(i) {
   if (solved.has(tiles[i].gi)) return;
-  if (selected.has(i)) { selected.delete(i); }
-  else if (selected.size < 4) { selected.add(i); }
-  statusText.textContent = selected.size === 4 ? "Submit your link." : "Select four connected tiles.";
+  if (selected.has(i)) selected.delete(i);
+  else if (selected.size<4) selected.add(i);
+  statusText.textContent=selected.size===4?"Submit your link.":"Select four connected tiles.";
   render();
 }
 
 function submitSelection() {
-  if (selected.size !== 4) return;
-
-  const picked  = Array.from(selected).map(i => tiles[i]);
-  const gi      = picked[0].gi;
-  const isMatch = picked.every(t => t.gi === gi);
+  if (selected.size!==4) return;
+  var picked=Array.from(selected).map(function(i){return tiles[i];});
+  var gi=picked[0].gi;
+  var isMatch=picked.every(function(t){return t.gi===gi;});
 
   if (isMatch) {
-    solved.add(gi);
-    selected.clear();
-    showHint(false);
-    if (solved.size === 4) {
-      statusText.textContent = "All links forged!";
-      render();
-      recordResult(true);
-      renderStats();
-      showCompletionModal();
+    solved.add(gi); selected.clear(); showHint(false);
+    moveHistory.push("C"+gi); // correct, which group
+    if (solved.size===4) {
+      statusText.textContent="All links forged!"; render();
+      recordResult(true); renderStats(); showCompletionModal();
     } else {
-      statusText.textContent = "Correct link forged.";
-      render();
+      statusText.textContent="Correct link forged."; render();
     }
   } else {
-    const hintMsg = buildHint(picked);
-    mistakes++;
-    selected.clear();
-    statusText.textContent = mistakes >= 4
-      ? "No mistakes left. Reset to try again."
-      : "Not a link. Try another group.";
-    showHint(true, hintMsg);
-    if (mistakes >= 4) {
-      render();
-      recordResult(false);
-      renderStats();
-      showFailModal();
-    } else {
-      render();
-    }
+    var hintMsg=buildHint(picked);
+    mistakes++; selected.clear();
+    moveHistory.push("W"); // wrong guess
+    statusText.textContent=mistakes>=4?"No mistakes left. Reset to try again.":"Not a link. Try another group.";
+    showHint(true,hintMsg);
+    if (mistakes>=4) { render(); recordResult(false); renderStats(); showFailModal(); }
+    else render();
   }
 }
 
-// ── Hint logic (escalating) ──────────────────────────────────────────────────
-//
-// Escalation per category (tracked via hintHistory):
-//   1st time hinting a category → subtle nudge (general hint text)
-//   2nd time same category      → medium: name the category
-//   3rd time same category      → obvious: reveal category + all 4 words
-//
-// If the wrong guess has 3 tiles from one group (one-away), always flag that first.
-
+// ── Escalating hints ─────────────────────────────────────────────────────────
 function buildHint(picked) {
-  const nextMistakeNum = mistakes + 1;
+  var counts=new Map();
+  picked.forEach(function(t){counts.set(t.gi,(counts.get(t.gi)||0)+1);});
+  var topEntry=[...counts.entries()].sort(function(a,b){return b[1]-a[1];})[0];
+  var topGi=topEntry[0], topCount=topEntry[1];
+  var nextN=mistakes+1;
 
-  // ── One-away detection ───────────────────────────────────────────────────
-  const counts = new Map();
-  picked.forEach(t => counts.set(t.gi, (counts.get(t.gi) || 0) + 1));
-  const [topGi, topCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-
-  if (topCount === 3) {
-    // Track this category in hint history
-    recordHintFor(topGi);
-    const timesHinted = hintHistory.filter(h => h === topGi).length;
-    return buildEscalatedHint(nextMistakeNum, topGi, timesHinted, true);
+  if (topCount===3) {
+    hintHistory.push(topGi);
+    var times=hintHistory.filter(function(h){return h===topGi;}).length;
+    return escalate(nextN,topGi,times,true);
   }
-
-  // ── General wrong guess: pick an unsolved group to hint ─────────────────
-  // Prefer a group the player has NOT been hinted about yet
-  const unsolved = puzzleGroups
-    .map((g, i) => ({ g, i }))
-    .filter(({ i }) => !solved.has(i));
-
-  const unhinted = unsolved.filter(({ i }) => !hintHistory.includes(i));
-  const target   = unhinted.length > 0
-    ? unhinted[mistakes % unhinted.length]
-    : unsolved[mistakes % unsolved.length];
-
-  const targetGi = target.i;
-  recordHintFor(targetGi);
-  const timesHinted = hintHistory.filter(h => h === targetGi).length;
-  return buildEscalatedHint(nextMistakeNum, targetGi, timesHinted, false);
+  var unsolved=puzzleGroups.map(function(g,i){return {g:g,i:i};}).filter(function(x){return !solved.has(x.i);});
+  var unhinted=unsolved.filter(function(x){return !hintHistory.includes(x.i);});
+  var target=(unhinted.length>0?unhinted:unsolved)[mistakes%((unhinted.length||unsolved.length)||1)];
+  if (!target) target=unsolved[0];
+  hintHistory.push(target.i);
+  var times=hintHistory.filter(function(h){return h===target.i;}).length;
+  return escalate(nextN,target.i,times,false);
 }
 
-function recordHintFor(gi) {
-  hintHistory.push(gi);
+function escalate(mistakeNum,gi,times,oneAway) {
+  var group=puzzleGroups[gi];
+  var prefix="Hint "+mistakeNum+"/4: ";
+  var oneAwayStr=oneAway?"You are one tile away! ":"";
+  if (times<=1) return prefix+oneAwayStr+group.hint;
+  if (times===2) return prefix+oneAwayStr+"The category is \""+group.title+"\". "+group.hint;
+  return prefix+oneAwayStr+(group.reveal||group.title+": "+group.words.join(", ")+".");
 }
 
-function buildEscalatedHint(mistakeNum, gi, timesHinted, isOneAway) {
-  const group  = puzzleGroups[gi];
-  const prefix = "Hint " + mistakeNum + "/4: ";
-  const oneAwaySuffix = isOneAway ? "You are one away! " : "";
-
-  if (timesHinted <= 1) {
-    // Level 1 — subtle nudge
-    return prefix + oneAwaySuffix + group.hint;
-  } else if (timesHinted === 2) {
-    // Level 2 — name the category
-    return prefix + oneAwaySuffix + "The category is \"" + group.title + "\". " + group.hint;
-  } else {
-    // Level 3 — full reveal
-    return prefix + oneAwaySuffix + group.reveal;
-  }
-}
-
-function showHint(visible, msg) {
-  if (visible && msg) {
-    hintText.textContent = msg;
-    hintBox.hidden = false;
-  } else {
-    hintBox.hidden = true;
-    hintText.textContent = "";
-  }
+function showHint(visible,msg) {
+  if (visible&&msg) { hintText.textContent=msg; hintBox.hidden=false; }
+  else { hintBox.hidden=true; hintText.textContent=""; }
 }
 
 // ── Puzzle control ───────────────────────────────────────────────────────────
 function clearSelection() {
-  selected.clear();
-  statusText.textContent = "Select four connected tiles.";
-  render();
+  selected.clear(); statusText.textContent="Select four connected tiles."; render();
 }
 
-function resetPuzzle() {
-  selected.clear();
-  solved.clear();
-  mistakes    = 0;
-  hintHistory = [];
-  showHint(false);
-  hideModal();
-  currentPuzzleIndex = pickNextIndex();
-  puzzleGroups = puzzleBank[currentPuzzleIndex];
-  createTiles();
-  statusText.textContent = "Select four connected tiles.";
-  render();
+function startPuzzle(daily) {
+  selected.clear(); solved.clear(); mistakes=0; hintHistory=[]; moveHistory=[];
+  showHint(false); hideModal(); isDaily=daily;
+  if (daily) {
+    puzzleGroups=buildDailyPuzzle(getTodayStr(),difficulty);
+    statusText.textContent="Today's puzzle — "+diffLabel()+" mode.";
+  } else {
+    currentPuzzleIndex=(currentPuzzleIndex+1)%200;
+    puzzleGroups=buildFreePuzzle(currentPuzzleIndex,difficulty);
+    statusText.textContent="Select four connected tiles.";
+  }
+  createTiles(); render();
 }
 
-function pickNextIndex() {
-  if (puzzleBank.length < 2) return 0;
-  let next;
-  do { next = Math.floor(Math.random() * puzzleBank.length); }
-  while (next === currentPuzzleIndex);
-  return next;
+function diffLabel() {
+  return difficulty===1?"Easy":difficulty===3?"Hard":"Medium";
 }
 
 function shuffleActiveTiles() {
-  const unsolved = tiles.filter(t => !solved.has(t.gi));
-  const fixed    = tiles.map((t, i) => ({ t, i })).filter(({ t }) => solved.has(t.gi));
+  var unsolved=tiles.filter(function(t){return !solved.has(t.gi);});
+  var fixed=tiles.map(function(t,i){return {t:t,i:i};}).filter(function(x){return solved.has(x.t.gi);});
   randomShuffle(unsolved);
-  let ai = 0;
-  tiles = Array.from({ length: 16 }, (_, i) => {
-    const f = fixed.find(x => x.i === i);
-    return f ? f.t : unsolved[ai++];
+  var ai=0;
+  tiles=Array.from({length:16},function(_,i){
+    var f=fixed.find(function(x){return x.i===i;});
+    return f?f.t:unsolved[ai++];
   });
   clearSelection();
 }
 
-// ── Modals ───────────────────────────────────────────────────────────────────
-function showCompletionModal() {
-  const s = loadStats();
-  modalIcon.textContent  = mistakes === 0 ? "⭐" : "🎉";
-  modalTitle.textContent = mistakes === 0 ? "Perfect clear!" : "Puzzle complete!";
-  modalSub.textContent   = "Puzzle " + (currentPuzzleIndex + 1) + " done with " + mistakes + " mistake" + (mistakes === 1 ? "" : "s") + ".";
-  renderModalStats(s);
-  nextModal.hidden = false;
-}
+// ── Emoji share card ──────────────────────────────────────────────────────────
+var GROUP_EMOJI=["🟨","🟦","🟥","🟪"];
 
-function showFailModal() {
-  const s = loadStats();
-  modalIcon.textContent  = "💥";
-  modalTitle.textContent = "Out of mistakes!";
-  modalSub.textContent   = "Streak reset. Puzzle " + (currentPuzzleIndex + 1) + " not cleared.";
-  renderModalStats(s);
-  nextModal.hidden = false;
-}
+function buildShareCard() {
+  var s=loadStats();
+  var header="🔗 LinkForge "+( isDaily?"#"+getTodayStr():"Free Play");
+  var diffStr="["+diffLabel()+"]";
+  var result=mistakes>=4?"💥 Failed":"⭐ Cleared"+(mistakes===0?" (Perfect!)":"");
 
-function renderModalStats(s) {
-  modalStats.innerHTML = [
-    { label: "Cleared", value: s.cleared },
-    { label: "Streak",  value: s.streak  },
-    { label: "Best",    value: s.best    },
-  ].map(x =>
-    "<div class='modal-stat-item'><strong>" + x.value + "</strong><span>" + x.label + "</span></div>"
-  ).join("");
-}
-
-function hideModal() { nextModal.hidden = true; }
-
-// ── Tab switching ─────────────────────────────────────────────────────────────
-function switchTab(targetId) {
-  tabs.forEach(function(t) {
-    var isActive = t.id === "tab" + targetId;
-    t.className = isActive ? "tab active" : "tab";
-  });
-  panels.forEach(function(p) {
-    var show = p.id === "panel" + targetId;
-    if (show) {
-      p.classList.remove("panel-hidden");
-      p.style.display = "flex";
+  // Build emoji grid row by row
+  // moveHistory has "C0","C1","W" entries in order
+  var rows=[];
+  var row=[];
+  moveHistory.forEach(function(m) {
+    if (m.startsWith("C")) {
+      // Fill remaining unknowns in this attempt as wrong, then show correct row
+      while(row.length<4) row.push("⬜");
+      // Actually just show the correct colour for the solved group
+      rows.push(Array(4).fill(GROUP_EMOJI[parseInt(m[1])]||"🟩").join(""));
+      row=[];
     } else {
-      p.classList.add("panel-hidden");
-      p.style.display = "none";
+      row.push("❌");
+      if(row.length===4){rows.push(row.join(""));row=[];}
     }
   });
-  if (targetId === "Stats") renderStats();
-  if (targetId === "Board") fetchBoard();
+
+  var streakLine=s.streak>0?"🔥 Streak: "+s.streak+" | 🏆 Best: "+s.best:"";
+  var lines=[header,diffStr+" "+result,rows.join("\n"),streakLine,"linkforge.buildjoynow.com"].filter(Boolean);
+  return lines.join("\n");
 }
 
+// ── Modals ───────────────────────────────────────────────────────────────────
+function showCompletionModal() {
+  var s=loadStats();
+  modalIcon.textContent=mistakes===0?"⭐":"🎉";
+  modalTitle.textContent=mistakes===0?"Perfect clear!":"Puzzle complete!";
+  modalSub.textContent=(isDaily?"Daily ":"Puzzle "+(currentPuzzleIndex+1)+" ")+"done with "+mistakes+" mistake"+(mistakes===1?"":"s")+".";
+  renderModalStats(s); nextModal.hidden=false;
+}
+function showFailModal() {
+  var s=loadStats();
+  modalIcon.textContent="💥"; modalTitle.textContent="Out of mistakes!";
+  modalSub.textContent="Streak reset to 0.";
+  renderModalStats(s); nextModal.hidden=false;
+}
+function renderModalStats(s) {
+  modalStats.innerHTML=[
+    {label:"Cleared",value:s.cleared},
+    {label:"Streak", value:s.streak},
+    {label:"Best",   value:s.best},
+  ].map(function(x){ return "<div class='modal-stat-item'><strong>"+x.value+"</strong><span>"+x.label+"</span></div>"; }).join("");
+}
+function hideModal() { nextModal.hidden=true; }
+
+// ── Tab switching ────────────────────────────────────────────────────────────
+function switchTab(targetId) {
+  tabs.forEach(function(t) {
+    var active=t.id==="tab"+targetId;
+    t.className=active?"tab active":"tab";
+  });
+  panels.forEach(function(p) {
+    var show=p.id==="panel"+targetId;
+    if (show) { p.classList.remove("panel-hidden"); p.style.display="flex"; }
+    else       { p.classList.add("panel-hidden");    p.style.display="none"; }
+  });
+  if (targetId==="Stats") renderStats();
+  if (targetId==="Board") fetchBoard();
+}
 
 // ── Share ────────────────────────────────────────────────────────────────────
 function shareGame() {
-  const url  = "https://linkforge.buildjoynow.com";
-  const text = "Can you forge all 4 links? Play LinkForge — a daily word puzzle!";
-
-  // navigator.share needs a user gesture and HTTPS — works on Android/iOS Chrome/Safari
-  if (navigator.share && location.protocol === "https:") {
-    navigator.share({ title: "LinkForge", text, url })
-      .then(() => {})
-      .catch(err => {
-        // User cancelled or share failed — fallback to clipboard
-        if (err.name !== "AbortError") copyToClipboard(url);
-      });
-  } else {
-    copyToClipboard(url);
-  }
+  var url="https://linkforge.buildjoynow.com";
+  var text="Can you forge all 4 links? Play LinkForge — a daily word puzzle!";
+  if (navigator.share&&location.protocol==="https:") {
+    navigator.share({title:"LinkForge",text:text,url:url}).catch(function(err){ if(err.name!=="AbortError") copyToClipboard(url); });
+  } else { copyToClipboard(url); }
 }
-
+function shareResult() {
+  var card=buildShareCard();
+  if (navigator.share&&location.protocol==="https:") {
+    navigator.share({title:"LinkForge",text:card}).catch(function(){ copyToClipboard(card); });
+  } else { copyToClipboard(card); }
+}
 function copyToClipboard(text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(showToast).catch(fallbackCopy);
-  } else {
-    fallbackCopy(text);
-  }
+  if (navigator.clipboard&&navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showCopiedToast).catch(function(){fallbackCopy(text);});
+  } else { fallbackCopy(text); }
 }
-
 function fallbackCopy(text) {
-  const el = document.createElement("textarea");
-  el.value = typeof text === "string" ? text : "https://linkforge.buildjoynow.com";
-  el.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0";
-  document.body.appendChild(el);
-  el.focus(); el.select();
-  try { document.execCommand("copy"); showToast(); } catch {}
+  var el=document.createElement("textarea");
+  el.value=text; el.style.cssText="position:fixed;top:-9999px;left:-9999px;opacity:0";
+  document.body.appendChild(el); el.focus(); el.select();
+  try{document.execCommand("copy");showCopiedToast();}catch(e){}
   document.body.removeChild(el);
 }
-
-function showToast() {
-  shareToast.hidden = false;
-  shareToast.classList.add("visible");
-  setTimeout(() => {
-    shareToast.classList.remove("visible");
-    setTimeout(() => { shareToast.hidden = true; }, 220);
-  }, 2200);
+function showCopiedToast() {
+  shareToast.hidden=false; shareToast.classList.add("visible");
+  setTimeout(function(){ shareToast.classList.remove("visible"); setTimeout(function(){shareToast.hidden=true;},220); },2200);
 }
 
 // ── Event listeners ──────────────────────────────────────────────────────────
-shareButton.addEventListener("click", shareGame);
-shareButton.addEventListener("touchend", function(e) { e.preventDefault(); shareGame(); });
-resetButton.addEventListener("click", resetPuzzle);
+resetButton.addEventListener("click", function(){ startPuzzle(false); });
 shuffleButton.addEventListener("click", shuffleActiveTiles);
 clearButton.addEventListener("click", clearSelection);
 submitButton.addEventListener("click", submitSelection);
 
-resetStatsBtn.addEventListener("click", function() {
-  var backup = localStorage.getItem(LS_KEY + ":backup");
-  var msg = backup
-    ? "Reset stats? Your data is backed up and can be restored.\nOK = Reset | Cancel = Keep"
-    : "Reset all your local stats? This cannot be undone.";
-  if (confirm(msg)) { saveStats(defaultStats()); renderStats(); }
-});
+shareButton.addEventListener("click", shareGame);
+shareButton.addEventListener("touchend", function(e){e.preventDefault();shareGame();});
 
-nextPuzzleBtn.addEventListener("click", () => { hideModal(); resetPuzzle(); });
-nextModal.addEventListener("click", e => { if (e.target === nextModal) { hideModal(); resetPuzzle(); } });
+if (modalShare) {
+  modalShare.addEventListener("click", shareResult);
+  modalShare.addEventListener("touchend", function(e){e.preventDefault();shareResult();});
+}
 
-modalBoardBtn.addEventListener("click", () => {
-  hideModal();
-  switchTab("Board");
-  // fetchBoard() inside switchTab will handle showing submit area
+document.getElementById("dailyBtn").addEventListener("click", function(){ startPuzzle(true); });
+document.getElementById("freeBtn").addEventListener("click",  function(){ startPuzzle(false); });
+
+nextPuzzleBtn.addEventListener("click", function(){ hideModal(); startPuzzle(isDaily?false:false); });
+nextModal.addEventListener("click", function(e){ if(e.target===nextModal){hideModal();} });
+
+modalBoardBtn.addEventListener("click", function(){
+  hideModal(); switchTab("Board");
 });
 
 tabs.forEach(function(tab) {
-  tab.addEventListener("click", function() {
-    switchTab(this.id.replace("tab", ""));
-  });
+  tab.addEventListener("click", function(){ switchTab(this.id.replace("tab","")); });
 });
 
-submitScoreBtn.addEventListener("click", () => {
-  const nick = nicknameInput.value.trim().slice(0, 16);
-  if (!nick) { nicknameInput.focus(); return; }
+diffButtons.forEach(function(btn) {
+  btn.addEventListener("click", function(){ setDifficulty(parseInt(this.dataset.d)); });
+});
+
+submitScoreBtn.addEventListener("click", function(){
+  var nick=nicknameInput.value.trim().slice(0,16);
+  if (!nick){nicknameInput.focus();return;}
   if (!pendingScore) return;
-  submitScore(nick, pendingScore.cleared, pendingScore.perfect);
+  submitScore(nick,pendingScore.cleared,pendingScore.perfect);
+});
+
+resetStatsBtn.addEventListener("click", function(){
+  if (confirm("Reset all your local stats?")){ saveStats(defaultStats()); renderStats(); }
 });
 
 // ── Init ─────────────────────────────────────────────────────────────────────
-resetPuzzle();
+setDifficulty(difficulty);
+renderStats();
+startPuzzle(false); // start with free play; user can tap Daily
