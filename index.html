@@ -323,6 +323,50 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
   .stats-grid { grid-template-columns: 1fr 1fr; }
 }
 
+
+/* ── Difficulty picker ── */
+.diff-row { display:flex; gap:8px; }
+.diff-btn {
+  flex:1; min-height:38px; border:1.5px solid var(--line);
+  border-radius:var(--radius); background:#fff; color:var(--muted);
+  font-size:0.78rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em;
+  transition:all 140ms; -webkit-tap-highlight-color:transparent;
+}
+.diff-btn:hover { border-color:var(--accent); color:var(--ink); }
+.diff-btn.active { background:var(--ink); color:#fff; border-color:var(--ink); }
+.diff-btn[data-d="1"].active { background:#157f72; border-color:#157f72; }
+.diff-btn[data-d="2"].active { background:#2f6fba; border-color:#2f6fba; }
+.diff-btn[data-d="3"].active { background:#c34a65; border-color:#c34a65; }
+
+/* ── Play mode buttons ── */
+.mode-row { display:flex; gap:8px; }
+.mode-btn {
+  flex:1; min-height:42px; border-radius:var(--radius);
+  font-size:0.82rem; font-weight:800; letter-spacing:0.02em;
+  -webkit-tap-highlight-color:transparent; transition:all 140ms;
+}
+#dailyBtn { border:none; background:var(--accent); color:#fff; }
+#dailyBtn:hover,#dailyBtn:active { background:var(--accent-strong); }
+#freeBtn  { border:1.5px solid var(--line); background:#fff; color:var(--ink); }
+#freeBtn:hover,#freeBtn:active { border-color:var(--accent); }
+
+/* ── Streak badge ── */
+.streak-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:99px; font-size:0.75rem; font-weight:900; }
+.streak-badge.s1 { background:rgba(21,127,114,0.12); color:var(--accent-strong); }
+.streak-badge.s2 { background:rgba(200,132,26,0.15); color:var(--gold); }
+.streak-badge.s3 { background:rgba(109,89,184,0.12); color:var(--violet); }
+
+/* ── Milestones ── */
+.milestones-section { display:flex; flex-direction:column; gap:8px; }
+.milestones-label { font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); }
+#milestonesList { display:flex; flex-wrap:wrap; gap:8px; }
+.milestone-badge { display:flex; flex-direction:column; align-items:center; gap:3px; padding:10px 14px; border:1.5px solid var(--line); border-radius:var(--radius); background:#f9fafb; font-size:0.72rem; font-weight:800; color:var(--muted); text-align:center; }
+.milestone-badge span:first-child { font-size:1.4rem; }
+.milestone-empty { color:var(--muted); font-size:0.82rem; font-weight:700; }
+
+/* ── Share result button in modal ── */
+.modal-share-btn { width:100%; min-height:42px; border:1.5px solid var(--line); border-radius:var(--radius); background:#fff; color:var(--ink); font-size:0.88rem; font-weight:800; -webkit-tap-highlight-color:transparent; transition:all 140ms; margin-top:-4px; }
+.modal-share-btn:hover,.modal-share-btn:active { border-color:var(--accent); background:var(--accent-bg); }
 </style>
 </head>
 <body>
@@ -339,6 +383,7 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
           </div>
         </div>
         <div class="header-actions">
+          <span id="streakBadge" class="streak-badge"></span>
           <button class="icon-button" id="shareButton" type="button" aria-label="Share">
             <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="13.5" cy="2.5" r="1.8" stroke="currentColor" stroke-width="1.5"/>
@@ -358,7 +403,17 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
       </div>
     </div>
 
+    <!-- PLAY -->
     <div class="panel" id="panelGame">
+      <div class="mode-row">
+        <button class="mode-btn" id="dailyBtn" type="button">&#128197; Daily Puzzle</button>
+        <button class="mode-btn" id="freeBtn"  type="button">&#9654; Free Play</button>
+      </div>
+      <div class="diff-row">
+        <button class="diff-btn" data-d="1" type="button">&#127807; Easy</button>
+        <button class="diff-btn" data-d="2" type="button">&#9889; Medium</button>
+        <button class="diff-btn" data-d="3" type="button">&#128293; Hard</button>
+      </div>
       <div class="stat-row">
         <div class="stat-card">
           <span class="stat-label">Groups found</span>
@@ -371,8 +426,7 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
       </div>
       <p class="status" id="status">Select four connected tiles.</p>
       <div class="hint-box" id="hintBox" hidden>
-        <span>&#128161;</span>
-        <span id="hintText"></span>
+        <span>&#128161;</span><span id="hintText"></span>
       </div>
       <div class="solved-groups" id="solvedGroups"></div>
       <div class="tile-grid" id="tileGrid"></div>
@@ -384,10 +438,11 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
       <div class="footer-panel">
         <img class="visitor-badge" src="https://hits.sh/linkforge.buildjoynow.com.svg?label=Visitors&color=157f72&labelColor=f9fafb" alt="Visitors">
         <span class="copyright">Copyright 2026 buildjoynow.com. All rights reserved.</span>
-        <span class="version">v1.09</span>
+        <span class="version">v1.10</span>
       </div>
     </div>
 
+    <!-- MY STATS -->
     <div class="panel panel-hidden" id="panelStats">
       <div class="stats-grid">
         <div class="stat-card accent">
@@ -415,9 +470,14 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
           <strong id="statAvg">&#8212;</strong>
         </div>
       </div>
+      <div class="milestones-section">
+        <p class="milestones-label">&#127942; Badges earned</p>
+        <div id="milestonesList"></div>
+      </div>
       <button class="btn-danger" id="resetStatsBtn" type="button">Reset my stats</button>
     </div>
 
+    <!-- TOP 10 -->
     <div class="panel panel-hidden" id="panelBoard">
       <p class="board-sub">Global top 10 &mdash; rounds cleared without failing</p>
       <div id="boardList" class="board-list"><div class="board-loading">Loading&#8230;</div></div>
@@ -443,6 +503,7 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
     <p id="modalSub"></p>
     <div class="modal-stats" id="modalStats"></div>
     <button class="btn-primary modal-btn" id="nextPuzzleBtn" type="button">Next Puzzle &#8594;</button>
+    <button class="modal-share-btn" id="modalShare" type="button">&#128279; Share my result</button>
     <button class="btn-secondary modal-btn" id="modalBoardBtn" type="button">&#127942; View Top 10</button>
   </div>
 </div>
