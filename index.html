@@ -438,7 +438,7 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
       <div class="footer-panel">
         <img class="visitor-badge" src="https://hits.sh/linkforge.buildjoynow.com.svg?label=Visitors&color=157f72&labelColor=f9fafb" alt="Visitors">
         <span class="copyright">Copyright 2026 buildjoynow.com. All rights reserved.</span>
-        <span class="version">v1.10</span>
+        <span class="version">v1.11</span>
       </div>
     </div>
 
@@ -468,6 +468,14 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
         <div class="stat-card">
           <span class="stat-label">Avg mistakes</span>
           <strong id="statAvg">&#8212;</strong>
+        </div>
+        <div class="stat-card accent">
+          <span class="stat-label">Daily streak</span>
+          <strong id="statDailyStreak">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Best daily</span>
+          <strong id="statDailyBest">0</strong>
         </div>
       </div>
       <div class="milestones-section">
@@ -505,6 +513,20 @@ input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rg
     <button class="btn-primary modal-btn" id="nextPuzzleBtn" type="button">Next Puzzle &#8594;</button>
     <button class="modal-share-btn" id="modalShare" type="button">&#128279; Share my result</button>
     <button class="btn-secondary modal-btn" id="modalBoardBtn" type="button">&#127942; View Top 10</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="lockedModal" hidden>
+  <div class="modal-card">
+    <div class="modal-icon" id="lockedIcon">🔒</div>
+    <h2 id="lockedTitle">Today's Puzzle Complete!</h2>
+    <p id="lockedMsg"></p>
+    <p id="lockedStreak" style="font-weight:900;font-size:1rem;color:#157f72;"></p>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn-secondary modal-btn" id="lockedRetryBtn" type="button">&#9654; Retry for fun</button>
+      <button class="btn-primary modal-btn"   id="lockedFreeBtn"  type="button">&#127381; Free Play</button>
+    </div>
+    <p style="font-size:0.72rem;color:#667085;font-weight:700;margin-top:4px;">&#9432; Retry won't add to your score</p>
   </div>
 </div>
 
